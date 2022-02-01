@@ -3,12 +3,9 @@ import open3d as o3d
 import numpy as np
 import pymeshlab
 
-array_in = np.array([[[0,0],
-                      [0,1]],
-                     [[0,1],
-                      [1,1]],
-                     [[0,0],
-                      [1,0]],]) # array d'entree type [[x1, z1][x2, z2]]
+array_in = np.array([[[0,0],[0,1]],
+                     [[0,1],[1,1]],
+                     [[0,0],[1,0]],]) # array d'entree type [[x1, z1][x2, z2]]
 
 array_2 = np.insert(array_in,1,0,axis=1) 
 ddarr = np.reshape(array_in.flatten(),(-1,2))
@@ -66,4 +63,4 @@ m = pymeshlab.Mesh(all_points, liste_triangles) # cree la mesh
 ms = pymeshlab.MeshSet() # cree une meshliste pour contenir le mesh
 ms.add_mesh(m, mesh_name = '', set_as_current = True) # ajoute mesh a la liste
 
-ms.save_current_mesh('mesh_without_color.ply', save_face_color=False) # enregistre
+ms.save_current_mesh('mesh_without_color.obj', save_face_color=False) # enregistre
