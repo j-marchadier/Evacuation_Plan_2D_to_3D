@@ -4,11 +4,11 @@ import numpy as np
 from sqlalchemy import all_
 
 array_in = np.array([[[0,0],
+                      [0,1]],
+                     [[0,1],
                       [1,1]],
-                     [[2,4],
-                      [1,1]],
-                    [[2,2],
-                     [0,1]]])
+                     [[0,0],
+                      [1,0]],])
 
 array_2 = np.insert(array_in,1,0,axis=1)
 #print(array_2)
@@ -43,20 +43,35 @@ all_vertex = np.concatenate((vertexlist,vertexlist2),axis=0) # liste complete de
 #print(all_vertex)
 
 
+nb_lignes = len(coords_start_end)
+nb_tri = 4
 
-liste_mesh = [] # stocker les mesh
+#liste_mesh = [] # stocker les mesh
+mesh = o3d.geometry.TriangleMesh()
+liste_triangles = [[0]*3 for i in range(nb_lignes*nb_tri)]
+print(liste_triangles)
 
-for i in range(len(coords_start_end)):
-    mesh = o3d.geometry.TriangleMesh()
+for i in range(nb_lignes):
+    #mesh = o3d.geometry.TriangleMesh()
     
-    np_triangles = [[0]*3 for i in range(2)]
+    #np_triangles = [[0]*3 for j in range(2)]
     
-    np_triangles[0] = [i, i + len(array_in)*2, i + len(array_in)*2 + 1]
-    np_triangles[1] = [i, i + len(array_in)*2 + 1, i + 1]
+    #triangles[0] = [i, i + len(array_in)*2, i + len(array_in)*2 + 1]
+    #np_triangles[1] = [i + len(array_in)*2 + 1, i + len(array_in)*2, i]
+    #np_triangles[2] = [i, i + len(array_in)*2 + 1, i + 1]
+    #np_triangles[3] = [i + 1, i + len(array_in)*2 + 1, i]
     
-    mesh.vertices = o3d.utility.Vector3dVector(all_points)
-    mesh.triangles = o3d.utility.Vector3iVector(np_triangles)
-    liste_mesh.append(mesh)
+    triangle0 = [i, i + nb_lignes + 1, i + nb_lignes + 2]
+    triangle1 = [i + nb_lignes + 2, i + nb_lignes + 1, i]
+    triangle2 = [i, i + nb_lignes + 2, i + 1]
+    triangle3 = [i + 1, i + nb_lignes + 2, i]
+    
+    liste_triangles[0 + i*nb_tri] = triangle0
+    liste_triangles[1 + i*nb_tri] = triangle1
+    liste_triangles[2 + i*nb_tri] = triangle2
+    liste_triangles[3 + i*nb_tri] = triangle3
+    
+    #liste_mesh.append(mesh)
 
 #print(np_triangles)
 #print(all_points[2])
@@ -65,7 +80,11 @@ for i in range(len(coords_start_end)):
 #print(all_points[2])
 #print(all_points[9])
 #print(all_points[3])
-    
+liste_triangles = np.array(liste_triangles)
 
-o3d.visualization.draw_geometries(liste_mesh)
-    
+print(all_points)
+print(liste_triangles)
+print(nb_lignes)
+mesh.vertices = o3d.utility.Vector3dVector(all_points)
+mesh.triangles = o3d.utility.Vector3iVector(liste_triangles)
+o3d.visualization.draw_geometries([mesh])
