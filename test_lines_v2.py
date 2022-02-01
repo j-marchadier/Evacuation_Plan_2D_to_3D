@@ -1,7 +1,7 @@
 ## si on a "point depart ligne / point arrivée ligne" -> creer mesh
 import open3d as o3d
 import numpy as np
-from sqlalchemy import all_
+import pymeshlab
 
 array_in = np.array([[[0,0],
                       [0,1]],
@@ -18,7 +18,7 @@ array_coords = np.insert(ddarr,1,0,axis=1) # mettre la valeur y au centre, à 0
 new_array_coords = np.copy(array_coords)
 new_array_coords[:,1] = 2 # liste des points copiée pour le haut du mur, la valeur y au centre à 2
 all_points = np.concatenate((array_coords,new_array_coords),axis=0) # liste complete des points dans l'ordre bas->haut des murs
-print(all_points)
+#print(all_points)
 
 
 ''' coords_start_end = np.reshape(array_coords, (-1,2,3)) # array_in mais avec un y, bien réorganisé
@@ -62,6 +62,8 @@ for i in range(0, nb_lignes*2, 2):
 
 liste_triangles = np.array(liste_triangles) # mettre les triangles en np array
 
-mesh.vertices = o3d.utility.Vector3dVector(all_points)
-mesh.triangles = o3d.utility.Vector3iVector(liste_triangles) #ajouter au mesh
-o3d.visualization.draw_geometries([mesh]) # afficher
+m = pymeshlab.Mesh(all_points, liste_triangles) # cree la mesh
+ms = pymeshlab.MeshSet() # cree une meshliste pour contenir le mesh
+ms.add_mesh(m, mesh_name = '', set_as_current = True) # ajoute mesh a la liste
+
+ms.save_current_mesh('mesh_without_color.ply', save_face_color=False) # enregistre
