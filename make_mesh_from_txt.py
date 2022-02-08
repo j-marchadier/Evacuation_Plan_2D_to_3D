@@ -49,7 +49,7 @@ def main():
     nb_tri = 4 #nb de triangles a faire pour chaque ligne, soit 4.
 
 
-    mesh = o3d.geometry.TriangleMesh()
+    #mesh = o3d.geometry.TriangleMesh()
     liste_triangles = [[0]*3 for i in range(nb_lignes*nb_tri + 8)] # le +8 pour sol et plafond
     # pour stocker tous les triangles
 
@@ -68,42 +68,44 @@ def main():
 
 
     #le sol et plafond
-    liste_dist_points = [] #liste des distances à (0,0,0)
-    for p in array_coords:
-        liste_dist_points.append(dist_a_p_zero(p))
+    liste_all_x = [p[0] for p in array_coords] #liste des x
+    liste_all_z = [p[2] for p in array_coords] #liste des z
 
-    min_index = liste_dist_points.index(min(liste_dist_points)) # index of smallest value
-    max_index = liste_dist_points.index(max(liste_dist_points)) # index of highest value
+
+    min_index_x = liste_all_x.index(min(liste_all_x)) # index of smallest x value
+    max_index_x = liste_all_x.index(max(liste_all_x)) # index of highest x value
+    min_index_z = liste_all_z.index(min(liste_all_z)) # index of smallest z value
+    max_index_z = liste_all_z.index(max(liste_all_z)) # index of highest z value
     
-    print(array_coords)
+    min_x = array_coords[min_index_x][0]
+    max_x = array_coords[max_index_x][0]
+    min_z = array_coords[min_index_z][2]
+    max_z = array_coords[max_index_z][2] # corresponding values
+    
+    
     liste_floor = []
-    p_start = np.array(array_coords[min_index])
-    p_end = np.array(array_coords[max_index])
+    p_min_x_min_z = np.array([min_x, 0, min_z])
+    p_min_x_max_z = np.array([min_x, 0, max_z])
+    p_max_x_min_z = np.array([max_x, 0, min_z])
+    p_max_x_max_z = np.array([max_x, 0, max_z])
     
-    p_max_x = np.array([p_end[0],0,p_start[2]])
-    p_max_y = np.array([p_start[0],0,p_end[2]])
+    p_min_x_min_z_up = np.copy(p_min_x_min_z)
+    p_min_x_min_z_up[1] = wall_size
+    p_min_x_max_z_up = np.copy(p_min_x_max_z)
+    p_min_x_max_z_up[1] = wall_size
+    p_max_x_min_z_up = np.copy(p_max_x_min_z)
+    p_max_x_min_z_up[1] = wall_size
+    p_max_x_max_z_up = np.copy(p_max_x_max_z)
+    p_max_x_max_z_up[1] = wall_size # crée les points d'interet
     
-    
-    print(p_start)
-    print(p_end)
-    
-    p_start_up = np.copy(p_start)
-    p_start_up[1] = wall_size
-    p_end_up = np.copy(p_end)
-    p_end_up[1] = wall_size
-    p_max_x_up = np.copy(p_max_x)
-    p_max_x_up[1] = wall_size
-    p_max_y_up = np.copy(p_max_y)
-    p_max_y_up[1] = wall_size # releve / cree les points d'interet
-    
-    liste_floor.append(p_start)
-    liste_floor.append(p_end)
-    liste_floor.append(p_max_x)
-    liste_floor.append(p_max_y)
-    liste_floor.append(p_start_up)
-    liste_floor.append(p_end_up)
-    liste_floor.append(p_max_x_up)
-    liste_floor.append(p_max_y_up)
+    liste_floor.append(p_min_x_min_z)
+    liste_floor.append(p_min_x_max_z)
+    liste_floor.append(p_max_x_min_z)
+    liste_floor.append(p_max_x_max_z)
+    liste_floor.append(p_min_x_min_z_up)
+    liste_floor.append(p_min_x_max_z_up)
+    liste_floor.append(p_max_x_min_z_up)
+    liste_floor.append(p_max_x_max_z_up)
     
     for p in liste_floor:
         p = np.reshape(p,(1,3))
@@ -112,19 +114,15 @@ def main():
 
     for i in range(2):
         dec = 2-i # donc 2 puis 1
-        start_p = len(all_points) - dec * 4
-        end_p = start_p + 1
-        max_x_p = end_p + 1
-        max_y_p = max_x_p + 1 #index des points dans l'ordre
-        print(all_points[start_p])
-        print(all_points[end_p])
-        print(all_points[max_x_p])
-        print(all_points[max_y_p])
+        mxmz = len(all_points) - dec * 4
+        mxMz = mxmz + 1
+        Mxmz = mxMz + 1
+        MxMz = Mxmz + 1 #index des points dans l'ordre
         
-        triangle0 = [start_p, max_x_p, end_p]
-        triangle1 = [end_p, max_x_p, start_p]
-        triangle2 = [end_p, max_y_p, start_p]
-        triangle3 = [start_p, max_y_p, end_p] # tracer les 4 triangles
+        triangle0 = [mxmz, Mxmz, MxMz]
+        triangle1 = [MxMz, Mxmz, mxmz]
+        triangle2 = [MxMz, mxMz, mxmz]
+        triangle3 = [mxmz, mxMz, MxMz] # tracer les 4 triangles
         
         id_start = len(liste_triangles) - dec*4
         liste_triangles[0 + id_start] = triangle0
@@ -136,10 +134,10 @@ def main():
 
     m = pymeshlab.Mesh(all_points, liste_triangles) # cree la mesh
     ms = pymeshlab.MeshSet() # cree une meshliste pour contenir le mesh
-    ms.add_mesh(m, mesh_name = '', set_as_current = True) # ajoute mesh a la liste
+    ms.add_mesh(m, mesh_name = 'mesh1', set_as_current = True) # ajoute mesh a la liste
     
-    point = np.array([0, 0, 0])
-    ms.colorize_by_geodesic_distance_from_a_given_point(startpoint=point)
+    
+    
     
     outname = "mesh_with_colorv2.obj"
     if len(sys.argv) > 2:
@@ -147,5 +145,6 @@ def main():
         
     outname = arrange_name(outname,".obj")    
     ms.save_current_mesh(outname) # enregistre
+    
     
 main()
