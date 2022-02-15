@@ -38,38 +38,43 @@ public class readfile
         StreamReader reader = new StreamReader(filename);
         var fileContents = reader.ReadToEnd();
         reader.Close();
+
+        // prend le texte du fichier
         var lines = fileContents.Split("\n"[0]);
         myarray = new float[lines.Length * 4];
         myarrayX = new float[lines.Length * 2];
         myarrayZ = new float[lines.Length * 2];
         int index = 0;
+
+        // découpe le texte en lignes
         foreach(var line in lines)
         {
+            // découpe les lignes en 4 nombres chacune
             var temps = line.Split(';');
 
             foreach(var temp in temps)
             {
+                // ajoute chaque nombre dans l'array des valeurs
                 myarray[index] = float.Parse(temp);
                 if(index%2 == 0)
                 {
+                    // array des valeurs x
                     myarrayX[(int)(index / 2)] = float.Parse(temp);
                 }
                 else
                 {
+                    // array des valeurs z
                     myarrayZ[(int)(index / 2)] = float.Parse(temp);
                 }
                 index++;
-                Debug.Log(temp);
             }
 
         }
-
+        // trouve les valeurs min et max de x et z dans les valeurs données
         maxX = myarrayX.Max();
         minX = myarrayX.Min();
 
         maxZ = myarrayZ.Max();
         minZ = myarrayZ.Min();
-
-        //Debug.Log(myarray);
     }
 }
