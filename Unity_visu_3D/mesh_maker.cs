@@ -42,10 +42,14 @@ public class mesh_maker : MonoBehaviour
 
     readfile rf;
     // permet de lire le fichier actuel
-    string[] filelist;
+    string[] filelist_walls;
     // liste des fichiers
     string filename;
     // nom fichier actuel
+
+    char fileTag;
+
+    string logofile;
 
     int nFile;
     // numéro fichier actuel dans la liste
@@ -64,8 +68,8 @@ public class mesh_maker : MonoBehaviour
         nFile = 0;
         // on commence avec le 1er fichier
 
-        filelist = Directory.GetFiles(Application.dataPath + "/", "*.txt");
-        // on récupere tous les fichiers présents
+        filelist_walls = Directory.GetFiles(Application.dataPath + "/", "*_mur.txt");
+        // on récupere tous les fichiers présents contenant des murs
 
         while(!GetComponent<materialLoader>().isFinished());
         // on attend que le dictionnaire des textures ait fini d'initialiser
@@ -122,9 +126,9 @@ public class mesh_maker : MonoBehaviour
             // fait un préfab de l'objet actuel
         }
 
-        if(cycle && nFile<filelist.Length-1){
+        if(cycle && nFile<filelist_walls.Length-1){
             cycle = false;
-            if(nFile+1<filelist.Length) nFile += 1;
+            if(nFile+1<filelist_walls.Length) nFile += 1;
             else nFile = 0;
             createMesh();
             // passe au fichier suivant dans la liste et créé le mesh correspondant
@@ -172,10 +176,22 @@ public class mesh_maker : MonoBehaviour
         container = new GameObject("container");
         // créé un conteneur pour nos murs et plafonds et tout
 
-        filename = filelist[0];
-        rf = new readfile(filename);
+        filename = filelist_walls[0];
+        // nom du fichier
+
+        string cutname = filename.Split()[filename.Split().Length - 1];
+        string justname = cutname.Split()[0];
+        fileTag = justname[0];
+        // recupere le Tag de ce fichier
+
+        rf = new readfile(filename,"walls");
         rf.read();
         // lis le fichier actuel
+
+        string[] filelist_logos = Directory.GetFiles(Application.dataPath + "/", fileTag + "_logo.txt");
+        if(filelist_logos.Length>0) logofile = filelist_logos[0];
+
+
 
         for (int i = 0; i < rf.myarray.Length; i+=4)
         {
@@ -201,6 +217,7 @@ public class mesh_maker : MonoBehaviour
         LoadMaterial(cube_floor_center,"floor");
         LoadMaterial(cube_roof_center,"roof");
         // donne une texture au sol et au plafond
+
     }
 
     void SetTarget(GameObject cube, Vector3 target)
