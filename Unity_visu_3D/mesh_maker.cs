@@ -247,7 +247,8 @@ public class mesh_maker : MonoBehaviour
     {
         // donne une texture a un objet
         Material[] materials = obj.GetComponent<MeshRenderer>().materials;
-        if(materials.Length > 0)
+
+        if(materials.Length > 0 && (GetComponent<materialLoader>().DicoMat.ContainsKey(mat)))
         {
             materials[0] = GetComponent<materialLoader>().DicoMat[mat];
             // récupere la texture correspondante au tag demandé
