@@ -139,14 +139,39 @@ def DetectLogo(image):
                 cv2.rectangle(img_rgb, (c[0], c[1]), (c[2], c[3]), (255, 255, 255), -1)
     cv2.imwrite('resultat_detection_logo.png', img_rgb)
 
+def line():
+    #Read gray image
+    img = cv2.imread("roi.png",0)
+
+    #Create default parametrization LSD
+    lsd = cv2.createLineSegmentDetector(0)
+    result = ""
+    #Detect lines in the image
+    lines = lsd.detect(img)[0] #Position 0 of the returned tuple are the detected lines
+    for line in lines:
+        for x1,y1,x2,y2 in line:
+            result = result+str(int(x1))+';'+str(int(y1))+';'+str(int(x2))+';'+str(int(y2))+'\n'
+    result = result[:-1]
+    f = open("1_mur.txt","w")
+    f.write(result)
+    f.close()
+    #Draw detected lines in the image
+    drawn_img = lsd.drawSegments(img,lines)
+    print(len(lines))
+    #Show image
+    cv2.imwrite('LSD.jpg',drawn_img)
+    cv2.imshow('LSD.jpg',drawn_img)
+    cv2.waitKey(0)
 
 if __name__ == "__main__":
 
     input_path = "./data/esiee.jpg"
-    image = cv2.imread(input_path)
-    DetectLogo(image)
-    image = cv2.imread("resultat_detection_logo.png")
-    WallDetection(image).imageProcess()
+    #image = cv2.imread(input_path)
+    #DetectLogo(image)
 
+    #image = cv2.imread("resultat_detection_logo.png")
+    #WallDetection(image).imageProcess()
+
+    line()
     # cv2.imshow('thresh', img)
     # cv2.waitKey()
