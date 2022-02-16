@@ -21,8 +21,11 @@ public class readfile
 
     string filename;
 
-    public readfile(string filename){
+    string filetype;
+
+    public readfile(string filename, string tag){
         this.filename = filename;
+        this.filetype = tag;
     }
     public void read()
     {
