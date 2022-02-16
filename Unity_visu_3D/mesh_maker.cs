@@ -176,7 +176,7 @@ public class mesh_maker : MonoBehaviour
         container = new GameObject("container");
         // créé un conteneur pour nos murs et plafonds et tout
 
-        filename = filelist_walls[0];
+        filename = filelist_walls[nFile];
         // nom du fichier
 
         string cutname = filename.Split()[filename.Split().Length - 1];
@@ -248,9 +248,9 @@ public class mesh_maker : MonoBehaviour
         // donne une texture a un objet
         Material[] materials = obj.GetComponent<MeshRenderer>().materials;
 
-        if(materials.Length > 0 && this.hasMat())
+        if(materials.Length > 0 && this.hasMat(mat))
         {
-            if(!mat_is_null())
+            if(!mat_is_null(mat))
             {
                 materials[0] = GetComponent<materialLoader>().DicoMat[mat];
                 // récupere la texture correspondante au tag demandé
@@ -260,11 +260,11 @@ public class mesh_maker : MonoBehaviour
         }
     }
 
-    bool hasMat(){
+    bool hasMat(string mat){
         return (GetComponent<materialLoader>().DicoMat.ContainsKey(mat));
     }
 
-    bool mat_is_null(){
+    bool mat_is_null(string mat){
         return GetComponent<materialLoader>().DicoMat[mat] == null;
     }
 
