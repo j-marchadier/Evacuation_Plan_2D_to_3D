@@ -248,13 +248,24 @@ public class mesh_maker : MonoBehaviour
         // donne une texture a un objet
         Material[] materials = obj.GetComponent<MeshRenderer>().materials;
 
-        if(materials.Length > 0 && (GetComponent<materialLoader>().DicoMat.ContainsKey(mat)))
+        if(materials.Length > 0 && this.hasMat())
         {
-            materials[0] = GetComponent<materialLoader>().DicoMat[mat];
-            // récupere la texture correspondante au tag demandé
-            obj.GetComponent<MeshRenderer>().materials = materials;
-            // applique la texture
+            if(!mat_is_null())
+            {
+                materials[0] = GetComponent<materialLoader>().DicoMat[mat];
+                // récupere la texture correspondante au tag demandé
+                obj.GetComponent<MeshRenderer>().materials = materials;
+                // applique la texture
+            }
         }
+    }
+
+    bool hasMat(){
+        return (GetComponent<materialLoader>().DicoMat.ContainsKey(mat));
+    }
+
+    bool mat_is_null(){
+        return GetComponent<materialLoader>().DicoMat[mat] == null;
     }
 
     void registerPrefab(){
