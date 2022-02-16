@@ -110,7 +110,8 @@ public class mesh_maker : MonoBehaviour
             // change la longueur du sol
             if(old_hid_value != hide_roof){
                 old_hid_value = hide_roof;
-                floor.GetComponent<MeshRenderer>().enabled = false
+                if(hide_roof) floor.GetComponent<MeshRenderer>().enabled = false;
+                else floor.GetComponent<MeshRenderer>().enabled = true;
             }
         }
 
@@ -122,7 +123,8 @@ public class mesh_maker : MonoBehaviour
             // change la longueur du plafond
             if(old_hid_value != hide_roof){
                 old_hid_value = hide_roof;
-                roof.GetComponent<MeshRenderer>().enabled = false
+                if(hide_roof) roof.GetComponent<MeshRenderer>().enabled = false;
+                else roof.GetComponent<MeshRenderer>().enabled = true;
             }
         }
 
