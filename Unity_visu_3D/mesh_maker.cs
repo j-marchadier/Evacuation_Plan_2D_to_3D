@@ -11,6 +11,7 @@ public class mesh_maker : MonoBehaviour
     GameObject container;
     // contient tout les nouveaux objets qui vont former notre mesh
 
+    public bool hide_roof;
     [SerializeField]
     [Range(1, 100)]
     float wallSize = 1;
@@ -106,6 +107,11 @@ public class mesh_maker : MonoBehaviour
             floor.transform.position = new Vector3(-rf.meanX, -wallSize / 2, rf.meanZ);
             floor.transform.localScale = new Vector3(rf.meanX * 2 - adjustFloorSize, 1, rf.meanZ * 2 - adjustFloorSize);
             // change la longueur du sol
+            Color floor_col = renderer.material.color;
+            if(hide_roof) floor_col.a = 0f;
+            else floor_col.a = 1f;
+            foreach(var mat in floor.GetComponent<MeshRenderer>().materials)
+            mat.color = floor_col;
         }
 
         GameObject[] roofs = GameObject.FindGameObjectsWithTag("roof");
@@ -114,6 +120,11 @@ public class mesh_maker : MonoBehaviour
             roof.transform.position = new Vector3(-rf.meanX, wallSize / 2, rf.meanZ);
             roof.transform.localScale = new Vector3(rf.meanX * 2 - adjustFloorSize, 1, rf.meanZ * 2 - adjustFloorSize);
             // change la longueur du plafond
+            Color roof_col = renderer.material.color;
+            if(hide_roof) roof_col.a = 0f;
+            else roof_col.a = 1f;
+            foreach(var mat in roof.GetComponent<MeshRenderer>().materials)
+            mat.color = roof_col;
         }
 
         previousWallSize = currentWallSize;
