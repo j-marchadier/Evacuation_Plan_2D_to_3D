@@ -12,6 +12,7 @@ public class mesh_maker : MonoBehaviour
     // contient tout les nouveaux objets qui vont former notre mesh
 
     public bool hide_roof;
+    bool old_hid_value;
     [SerializeField]
     [Range(1, 100)]
     float wallSize = 1;
@@ -107,11 +108,9 @@ public class mesh_maker : MonoBehaviour
             floor.transform.position = new Vector3(-rf.meanX, -wallSize / 2, rf.meanZ);
             floor.transform.localScale = new Vector3(rf.meanX * 2 - adjustFloorSize, 1, rf.meanZ * 2 - adjustFloorSize);
             // change la longueur du sol
-            foreach(var mat in floor.GetComponent<MeshRenderer>().materials){
-                Color floor_col = mat.color;
-                if(hide_roof) floor_col.a = 0f;
-                else floor_col.a = 1f;
-                mat.SetColor("_Color",floor_col);
+            if(old_hid_value != hide_roof){
+                old_hid_value = hide_roof;
+                floor.GetComponent<MeshRenderer>().enabled = false
             }
         }
 
@@ -121,11 +120,9 @@ public class mesh_maker : MonoBehaviour
             roof.transform.position = new Vector3(-rf.meanX, wallSize / 2, rf.meanZ);
             roof.transform.localScale = new Vector3(rf.meanX * 2 - adjustFloorSize, 1, rf.meanZ * 2 - adjustFloorSize);
             // change la longueur du plafond
-            foreach(var mat in roof.GetComponent<MeshRenderer>().materials){
-                Color roof_col = mat.color;
-                if(hide_roof) roof_col.a = 0f;
-                else roof_col.a = 1f;
-                mat.SetColor("_Color",roof_col);
+            if(old_hid_value != hide_roof){
+                old_hid_value = hide_roof;
+                roof.GetComponent<MeshRenderer>().enabled = false
             }
         }
 
