@@ -12,24 +12,24 @@ public class mesh_maker : MonoBehaviour
     // contient tout les nouveaux objets qui vont former notre mesh
 
     public bool hide_roof;
-    bool old_hid_value;
+    bool old_hide_value;
     [SerializeField]
     [Range(1, 100)]
-    float wallSize = 1;
+    float wallSize;
 
     float previousWallSize;
     float currentWallSize;
 
     [SerializeField]
     [Range(1, 10)]
-    float wallWidth = 1;
+    float wallWidth;
 
     float previousWallWidth;
     float currentWallWidth;
 
     [SerializeField]
     [Range(0, 60)]
-    float adjustFloorSize = 0;
+    float adjustFloorSize;
 
     float previousFloorSize;
     float currentFloorSize;
@@ -56,6 +56,8 @@ public class mesh_maker : MonoBehaviour
     int nFile;
     // numéro fichier actuel dans la liste
 
+    bool no_more_files = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -72,6 +74,14 @@ public class mesh_maker : MonoBehaviour
 
         filelist_walls = Directory.GetFiles(Application.dataPath + "/", "*_mur.txt");
         // on récupere tous les fichiers présents contenant des murs
+        if(filelist_walls.Length <= 0) no_more_files = true;
+
+        wallSize = 100;
+        previousWallSize = wallSize;
+        wallWidth = 6.35f;
+        previousWallWidth = wallWidth;
+        adjustFloorSize = 52;
+        previousFloorSize = adjustFloorSize;
 
         while(!GetComponent<materialLoader>().isFinished());
         // on attend que le dictionnaire des textures ait fini d'initialiser
@@ -82,6 +92,22 @@ public class mesh_maker : MonoBehaviour
 
     private void Update()
     {
+        if(!no_more_files) updateMesh();
+        else UnityEditor.EditorApplication.isPlaying = false;
+        // si il n'y a pas d'autre fichier, ferme le prog
+
+        if(cycle && nFile<filelist_walls.Length-1){
+            cycle = false;
+            if(nFile+1<filelist_walls.Length) nFile += 1;
+            else nFile = 0;
+            createMesh();
+            // passe au fichier suivant dans la liste et créé le mesh correspondant
+        }
+        else if(cycle) no_more_files = true;
+        // si il n'y a pas d'autre fichier, dit le
+    }
+
+    private void updateMesh(){
         currentWallSize = wallSize;
         currentWallWidth = wallWidth;
         currentFloorSize = adjustFloorSize;
@@ -108,8 +134,7 @@ public class mesh_maker : MonoBehaviour
             floor.transform.position = new Vector3(-rf.meanX, -wallSize / 2, rf.meanZ);
             floor.transform.localScale = new Vector3(rf.meanX * 2 - adjustFloorSize, 1, rf.meanZ * 2 - adjustFloorSize);
             // change la longueur du sol
-            if(old_hid_value != hide_roof){
-                old_hid_value = hide_roof;
+            if(old_hide_value != hide_roof){
                 if(hide_roof) floor.GetComponent<MeshRenderer>().enabled = false;
                 else floor.GetComponent<MeshRenderer>().enabled = true;
             }
@@ -121,12 +146,13 @@ public class mesh_maker : MonoBehaviour
             roof.transform.position = new Vector3(-rf.meanX, wallSize / 2, rf.meanZ);
             roof.transform.localScale = new Vector3(rf.meanX * 2 - adjustFloorSize, 1, rf.meanZ * 2 - adjustFloorSize);
             // change la longueur du plafond
-            if(old_hid_value != hide_roof){
-                old_hid_value = hide_roof;
+            if(old_hide_value != hide_roof){
                 if(hide_roof) roof.GetComponent<MeshRenderer>().enabled = false;
                 else roof.GetComponent<MeshRenderer>().enabled = true;
             }
         }
+
+        old_hide_value = hide_roof;
 
         previousWallSize = currentWallSize;
         previousWallWidth = currentWallWidth;
@@ -137,16 +163,6 @@ public class mesh_maker : MonoBehaviour
             registerPrefab();
             // fait un préfab de l'objet actuel
         }
-
-        if(cycle && nFile<filelist_walls.Length-1){
-            cycle = false;
-            if(nFile+1<filelist_walls.Length) nFile += 1;
-            else nFile = 0;
-            createMesh();
-            // passe au fichier suivant dans la liste et créé le mesh correspondant
-        }
-        else if(cycle) UnityEditor.EditorApplication.isPlaying = false;
-        // si il n'y a pas d'autre fichier, ferme le programme
     }
 
     private void tagManagement(string tag){
@@ -235,7 +251,7 @@ public class mesh_maker : MonoBehaviour
     void SetTarget(GameObject cube, Vector3 target)
     {
         Vector3 direction = target - cube.transform.position;
-        cube.transform.localScale = new Vector3(1,wallSize,direction.magnitude + 0.5f);
+        cube.transform.localScale = new Vector3(wallWidth, wallSize, direction.magnitude + 0.5f);
         cube.transform.position = cube.transform.position + (direction / 2);
         cube.transform.LookAt(target);
         // orient le mur dans la bonne direction

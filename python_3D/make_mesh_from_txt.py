@@ -8,7 +8,7 @@ def arrange_name(filename,extension):
     idx = filename.rfind('.')
     if idx <= 0:
         return filename+extension
-    
+
     else:
         return filename
 
@@ -27,13 +27,13 @@ def dist_a_p_zero(p1):
 
 def main():
     wall_size = 50
-    
+
     filename = sys.argv[1]
     filename = arrange_name(filename,".txt")
-    
+
     array_in = np.genfromtxt(filename, delimiter=';')
     #array_in = np.reshape(array_in.flatten(),(len(array_in),2,2))
-    
+
 
     ddarr = np.reshape(array_in.flatten(),(-1,2))
     array_coords = np.insert(ddarr,1,0,axis=1) # mettre la valeur y au centre, à 0
@@ -54,12 +54,12 @@ def main():
     # pour stocker tous les triangles
 
     for i in range(0, nb_lignes*2, 2):
-        
+
         triangle0 = [i, i + nb_lignes * 2, i + nb_lignes * 2 + 1]
         triangle1 = [i + nb_lignes * 2 + 1, i + nb_lignes * 2, i]
         triangle2 = [i, i + nb_lignes * 2 + 1, i + 1]
         triangle3 = [i + 1, i + nb_lignes * 2 + 1, i] # tracer les 4 triangles
-        
+
         liste_triangles[0 + (i//2)*nb_tri] = triangle0
         liste_triangles[1 + (i//2)*nb_tri] = triangle1
         liste_triangles[2 + (i//2)*nb_tri] = triangle2
@@ -76,19 +76,19 @@ def main():
     max_index_x = liste_all_x.index(max(liste_all_x)) # index of highest x value
     min_index_z = liste_all_z.index(min(liste_all_z)) # index of smallest z value
     max_index_z = liste_all_z.index(max(liste_all_z)) # index of highest z value
-    
+
     min_x = array_coords[min_index_x][0]
     max_x = array_coords[max_index_x][0]
     min_z = array_coords[min_index_z][2]
     max_z = array_coords[max_index_z][2] # corresponding values
-    
-    
+
+
     liste_floor = []
     p_min_x_min_z = np.array([min_x, 0, min_z])
     p_min_x_max_z = np.array([min_x, 0, max_z])
     p_max_x_min_z = np.array([max_x, 0, min_z])
     p_max_x_max_z = np.array([max_x, 0, max_z])
-    
+
     p_min_x_min_z_up = np.copy(p_min_x_min_z)
     p_min_x_min_z_up[1] = wall_size
     p_min_x_max_z_up = np.copy(p_min_x_max_z)
@@ -97,7 +97,7 @@ def main():
     p_max_x_min_z_up[1] = wall_size
     p_max_x_max_z_up = np.copy(p_max_x_max_z)
     p_max_x_max_z_up[1] = wall_size # crée les points d'interet
-    
+
     liste_floor.append(p_min_x_min_z)
     liste_floor.append(p_min_x_max_z)
     liste_floor.append(p_max_x_min_z)
@@ -106,7 +106,7 @@ def main():
     liste_floor.append(p_min_x_max_z_up)
     liste_floor.append(p_max_x_min_z_up)
     liste_floor.append(p_max_x_max_z_up)
-    
+
     for p in liste_floor:
         p = np.reshape(p,(1,3))
         all_points=np.concatenate((all_points,p),axis=0) # ajoute les points a la liste des points
@@ -118,33 +118,33 @@ def main():
         mxMz = mxmz + 1
         Mxmz = mxMz + 1
         MxMz = Mxmz + 1 #index des points dans l'ordre
-        
+
         triangle0 = [mxmz, Mxmz, MxMz]
         triangle1 = [MxMz, Mxmz, mxmz]
         triangle2 = [MxMz, mxMz, mxmz]
         triangle3 = [mxmz, mxMz, MxMz] # tracer les 4 triangles
-        
+
         id_start = len(liste_triangles) - dec*4
         liste_triangles[0 + id_start] = triangle0
         liste_triangles[1 + id_start] = triangle1
         liste_triangles[2 + id_start] = triangle2
         liste_triangles[3 + id_start] = triangle3 # stoker les 4 triangles
-    
+
     liste_triangles = np.array(liste_triangles) # mettre les triangles en np array
 
     m = pymeshlab.Mesh(all_points, liste_triangles) # cree la mesh
     ms = pymeshlab.MeshSet() # cree une meshliste pour contenir le mesh
     ms.add_mesh(m, mesh_name = 'mesh1', set_as_current = True) # ajoute mesh a la liste
-    
-    
-    
-    
+
+
+
+
     outname = "mesh_with_colorv2.obj"
     if len(sys.argv) > 2:
         outname = sys.argv[2]
-        
-    outname = arrange_name(outname,".obj")    
+
+    outname = arrange_name(outname,".obj")
     ms.save_current_mesh(outname) # enregistre
-    
-    
+
+
 main()
