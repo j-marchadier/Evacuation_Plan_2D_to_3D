@@ -92,6 +92,9 @@ public class mesh_maker : MonoBehaviour
 
     private void Update()
     {
+        if(Input.GetKeyDown(KeyCode.Return)) makePrefab = true;
+        if(Input.GetKeyDown(KeyCode.RightArrow)) cycle = true;
+
         if(!no_more_files) updateMesh();
         else UnityEditor.EditorApplication.isPlaying = false;
         // si il n'y a pas d'autre fichier, ferme le prog
