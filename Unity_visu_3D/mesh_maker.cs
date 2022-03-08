@@ -116,10 +116,10 @@ public class mesh_maker : MonoBehaviour
                 }
                 break;
 
-            case 2:
+            case 1:
                 break;
 
-            case 3:
+            case 2:
                 UnityEditor.EditorApplication.isPlaying = false;
                 break;
         }
