@@ -29,10 +29,12 @@ public class readfile
     }
     public void read()
     {
-        ReadString();
-        meanX = (minX + maxX) / 2;
-        meanZ = (minZ + maxZ) / 2;
-
+        if(this.filetype == "walls")
+        {
+            ReadString();
+            meanX = (minX + maxX) / 2;
+            meanZ = (minZ + maxZ) / 2;
+        }
     }
 
     void ReadString()
@@ -79,5 +81,10 @@ public class readfile
 
         maxZ = myarrayZ.Max();
         minZ = myarrayZ.Min();
+    }
+
+    void ReadPrefab()
+    {
+
     }
 }

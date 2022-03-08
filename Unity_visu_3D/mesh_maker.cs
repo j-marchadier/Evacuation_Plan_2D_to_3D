@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using System.IO;
 using System.Linq;
-
+using UnityEngine.SceneManagement;
 
 public class mesh_maker : MonoBehaviour
 {
@@ -91,17 +91,46 @@ public class mesh_maker : MonoBehaviour
         while(!GetComponent<materialLoader>().isFinished());
         // on attend que le dictionnaire des textures ait fini d'initialiser
 
+        old_hide_value = hide_roof;
+
         createMesh();
         // on cree la premiere mesh
     }
 
     private void Update()
     {
-        if(Input.GetKeyDown(KeyCode.P)) state = 0;
-        else if(Input.GetKeyDown(KeyCode.V)) state = 1;
-        else if(Input.GetKeyDown(KeyCode.Escape)) state = 2;
+        if (Input.GetKeyDown(KeyCode.P)) state = 0;
+        else if (Input.GetKeyDown(KeyCode.V)) state = 1;
+        else if (Input.GetKeyDown(KeyCode.Escape)) state = 2;
+        else if (Input.GetKeyDown(KeyCode.H)) hide_roof = !hide_roof; // hide roof button
 
-        switch(state){
+        if (Input.GetKey(KeyCode.A)) {
+            if (wallSize >= 1) wallSize-=0.1f;
+        }
+        else if (Input.GetKey(KeyCode.Z)) {
+            if (wallSize <= 100) wallSize+=0.1f;
+        }
+
+        if (Input.GetKey(KeyCode.Q))
+        {
+            if (wallWidth >= 1) wallWidth-=0.1f;
+        }
+        else if (Input.GetKey(KeyCode.S))
+        {
+            if (wallWidth <= 10) wallWidth+=0.1f;
+        }
+
+        if (Input.GetKey(KeyCode.W))
+        {
+            if (adjustFloorSize >= 0) adjustFloorSize-=0.1f;
+        }
+        else if (Input.GetKey(KeyCode.X))
+        {
+            if (adjustFloorSize <= 60) adjustFloorSize+=0.1f;
+        }
+
+
+        switch (state){
             case 0: // si on fait des prefab
                 if(Input.GetKeyDown(KeyCode.Return)) makePrefab = true;
                 if(Input.GetKeyDown(KeyCode.RightArrow)) cycle = true;
@@ -117,6 +146,7 @@ public class mesh_maker : MonoBehaviour
                 break;
 
             case 1:
+                SceneManager.LoadScene(1);
                 break;
 
             case 2:
@@ -253,11 +283,19 @@ public class mesh_maker : MonoBehaviour
         GameObject cube_floor_center = GameObject.CreatePrimitive(PrimitiveType.Cube);
         cube_floor_center.gameObject.tag = "floor";
         cube_floor_center.transform.parent = container.transform;
+        if (hide_roof)
+        {
+            cube_floor_center.GetComponent<MeshRenderer>().enabled = false;
+        }
         // créé le sol et met le dans le conteneur
 
         GameObject cube_roof_center = GameObject.CreatePrimitive(PrimitiveType.Cube);
         cube_roof_center.gameObject.tag = "roof";
         cube_roof_center.transform.parent = container.transform;
+        if (hide_roof)
+        {
+            cube_roof_center.GetComponent<MeshRenderer>().enabled = false;
+        }
         // créé le plafond et met le dans le conteneur
 
         LoadMaterial(cube_floor_center,"floor");
@@ -318,12 +356,17 @@ public class mesh_maker : MonoBehaviour
         string[] parts = filename.Split('/');
         string txtname = parts[parts.Length - 1];
         string prefabName = txtname.Split('.')[0];
-        string pathname = "Assets/Prefab/prefab_" + prefabName + ".prefab";
+        string pathname = "Assets/Resources/Prefab/prefab_" + prefabName + ".prefab";
         //créé un nom pour la préfab par rapport au nom du fichier correspondant
 
-        if(!Directory.Exists("Assets/Prefab"))
+        if(!Directory.Exists("Assets/Resources"))
         {
-            Directory.CreateDirectory("Assets/Prefab");
+            Directory.CreateDirectory("Assets/Resources");
+            // créé un dossier pour stocker la préfab si besoin
+        }
+        if (!Directory.Exists("Assets/Resources/Prefab"))
+        {
+            Directory.CreateDirectory("Assets/Resources/Prefab");
             // créé un dossier pour stocker la préfab si besoin
         }
 
