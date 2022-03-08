@@ -56,11 +56,13 @@ public class mesh_maker : MonoBehaviour
     int nFile;
     // numéro fichier actuel dans la liste
 
-    bool no_more_files = false;
+    int state = 0;
+    // état. 0 = make prefab. 1 = visualize prefabs. 2 = quit.
 
     // Start is called before the first frame update
     void Start()
     {
+        state = 0;
         string[] taglist = {"wall","floor","roof"};
         // liste de tous les tags existants dans la mesh.
         // utile pour atteindre les objets créés
@@ -74,7 +76,10 @@ public class mesh_maker : MonoBehaviour
 
         filelist_walls = Directory.GetFiles(Application.dataPath + "/", "*_mur.txt");
         // on récupere tous les fichiers présents contenant des murs
-        if(filelist_walls.Length <= 0) no_more_files = true;
+        if(filelist_walls.Length <= 0){
+            Debug.Log("No file to read !");
+            UnityEditor.EditorApplication.isPlaying = false;
+        }
 
         wallSize = 100;
         previousWallSize = wallSize;
@@ -92,22 +97,32 @@ public class mesh_maker : MonoBehaviour
 
     private void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Return)) makePrefab = true;
-        if(Input.GetKeyDown(KeyCode.RightArrow)) cycle = true;
+        if(Input.GetKeyDown(KeyCode.P)) state = 0;
+        else if(Input.GetKeyDown(KeyCode.V)) state = 1;
+        else if(Input.GetKeyDown(KeyCode.Escape)) state = 2;
 
-        if(!no_more_files) updateMesh();
-        else UnityEditor.EditorApplication.isPlaying = false;
-        // si il n'y a pas d'autre fichier, ferme le prog
+        switch(state){
+            case 0: // si on fait des prefab
+                if(Input.GetKeyDown(KeyCode.Return)) makePrefab = true;
+                if(Input.GetKeyDown(KeyCode.RightArrow)) cycle = true;
+                updateMesh();
 
-        if(cycle && nFile<filelist_walls.Length-1){
-            cycle = false;
-            if(nFile+1<filelist_walls.Length) nFile += 1;
-            else nFile = 0;
-            createMesh();
-            // passe au fichier suivant dans la liste et créé le mesh correspondant
+                if(cycle){
+                    cycle = false;
+                    if(nFile+1<filelist_walls.Length) nFile += 1;
+                    else nFile = 0;
+                    createMesh();
+                    // passe au fichier suivant dans la liste et créé le mesh correspondant
+                }
+                break;
+
+            case 2:
+                break;
+
+            case 3:
+                UnityEditor.EditorApplication.isPlaying = false;
+                break;
         }
-        else if(cycle) no_more_files = true;
-        // si il n'y a pas d'autre fichier, dit le
     }
 
     private void updateMesh(){
