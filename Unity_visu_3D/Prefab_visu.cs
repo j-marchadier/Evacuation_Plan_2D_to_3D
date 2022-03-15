@@ -17,7 +17,7 @@ public class Prefab_visu
 
         if(prefabList.Length <= 0)
         {
-            Debug.Log("no prefab");
+            Debug.Log("No prefab to visualize");
         }
 
     }
