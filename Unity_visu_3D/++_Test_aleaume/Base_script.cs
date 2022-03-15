@@ -6,6 +6,8 @@ public class Base_script : MonoBehaviour
     Prefab_make pmake;
     Prefab_visu pvisu;
 
+    GameObject rotation;
+
     Loader ld;
 
     bool visualizing = false;
@@ -23,6 +25,13 @@ public class Base_script : MonoBehaviour
 
         pmake = new Prefab_make(ld);
         pvisu = new Prefab_visu();
+        if(GameObject.FindGameObjectWithTag("rotation")!= null)
+            rotation = new GameObject("Rotation");
+
+        Camera mc = Camera.main;
+        rotation.AddComponent<CameraLookAt>();
+        rotation.transform.tag = "rotation";
+        rotation.GetComponent<CameraLookAt>()._camera = mc;
     }
 
     private void Update()

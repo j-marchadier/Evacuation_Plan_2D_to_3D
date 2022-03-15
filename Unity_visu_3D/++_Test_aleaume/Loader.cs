@@ -14,7 +14,7 @@ public class Loader
 
     public void LoadAll(){
         // TAGS
-        string[] taglist = {"start","prefab","wall","floor","roof"};
+        string[] taglist = {"start", "rotation","prefab","wall","floor","roof"};
         // liste de tous les tags existants dans la mesh.
         // utile pour atteindre les objets créés
 
