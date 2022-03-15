@@ -34,8 +34,10 @@ public class Base_script : MonoBehaviour
         }
 
         if(making){
-            pmake.setSwitch(true);
-            if(old_making_val != making) pvisu.clear();
+            if(old_making_val != making){
+                pmake.setSwitch(true);
+                pvisu.clear();
+            }
             pmake.update_make();
         }
         if(visualizing){
