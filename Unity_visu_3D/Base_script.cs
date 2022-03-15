@@ -18,6 +18,9 @@ public class Base_script : MonoBehaviour
 
     private void Update()
     {
+        bool old_making_val = making;
+        bool old_visualizing_val = visualizing;
+
         if(Input.GetKeyDown(KeyCode.P)){
             visualizing = false;
             making = true;
@@ -32,11 +35,11 @@ public class Base_script : MonoBehaviour
 
         if(making){
             pmake.setSwitch(true);
-            pvisu.clear();
+            if(old_making_val != making) pvisu.clear();
             pmake.update_make();
         }
         if(visualizing){
-            pmake.clear();
+            if(old_visualizing_val != visualizing) pmake.clear();
             pvisu.update_visu();
         }
 
