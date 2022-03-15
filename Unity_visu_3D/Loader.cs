@@ -10,10 +10,11 @@ public class Loader
     private Dictionary<string,Material> DicoMat;
     private bool finished = false;
 
-    public Loader()
-    {
+    public Loader(){;}
+
+    public void LoadAll(){
         // TAGS
-        string[] taglist = {"wall","floor","roof"};
+        string[] taglist = {"start", "rotation","prefab","wall","floor","roof"};
         // liste de tous les tags existants dans la mesh.
         // utile pour atteindre les objets créés
 

@@ -11,6 +11,7 @@ public class Prefab_visu
     int prefabNum = 0;
     GameObject currentPrefab;
 
+
     public Prefab_visu()
     {
         charge_prefabs();
@@ -60,7 +61,10 @@ public class Prefab_visu
 
     public void visuPrefab()
     {
-        if(currentPrefab == null) currentPrefab = GameObject.Instantiate(prefabList[prefabNum]);
+        if(currentPrefab == null){
+            currentPrefab = GameObject.Instantiate(prefabList[prefabNum]);
+            currentPrefab.gameObject.tag = "prefab";
+        }
     }
 
     public void clear(){
@@ -74,5 +78,13 @@ public class Prefab_visu
         {
             Debug.Log("No prefab to visualize");
         }
+    }
+
+    public bool prefab_list_is_empty(){
+        return prefabList.Length <= 0;
+    }
+
+    public GameObject visualizedPrefab(){
+        return currentPrefab;
     }
 }

@@ -32,7 +32,7 @@ public class Prefab_make
     readfile rf;
     // permet de lire le fichier actuel
 
-    Loader ld;
+    public Loader ld;
     // fait toutes les initialisations dont on a besoin
     string[] filelist_walls;
     // liste des fichiers lisibles
@@ -51,9 +51,9 @@ public class Prefab_make
 
 
     // Start is called before the first frame update
-    public Prefab_make()
+    public Prefab_make(Loader l)
     {
-
+        this.ld = l;
         nFile = 0;
         // on commence avec le 1er fichier
 
@@ -71,15 +71,13 @@ public class Prefab_make
         adjustFloorSize = 52;
         previousFloorSize = adjustFloorSize;
 
-        ld = new Loader();
-
         while(!ld.isFinished()) Debug.Log("Waiting for textures...");
         // on attend que le dictionnaire des textures ait fini d'initialiser
 
         old_hide_value = hide_roof;
 
-        createMesh();
-        // on cree la premiere mesh
+        just_switched = true;
+        // on met le switch pour creer la premiere mesh
     }
 
     public void update_make()
@@ -212,6 +210,7 @@ public class Prefab_make
             // si il existe un objet "container", détruit le
         }
         container = new GameObject("container");
+        container.gameObject.tag = "prefab";
         // créé un conteneur pour nos murs et plafonds et tout
 
         filename = filelist_walls[nFile];
@@ -263,7 +262,6 @@ public class Prefab_make
         LoadMaterial(cube_floor_center,"floor");
         LoadMaterial(cube_roof_center,"roof");
         // donne une texture au sol et au plafond
-
     }
 
     void SetTarget(GameObject cube, Vector3 target)
@@ -323,5 +321,13 @@ public class Prefab_make
 
     public void clear(){
         GameObject.Destroy(container);
+    }
+
+    public float getMeanX(){
+        return rf.meanX;
+    }
+
+    public float getMeanZ(){
+        return rf.meanZ;
     }
 }

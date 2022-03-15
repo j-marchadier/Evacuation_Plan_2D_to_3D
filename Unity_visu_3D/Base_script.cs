@@ -6,6 +6,10 @@ public class Base_script : MonoBehaviour
     Prefab_make pmake;
     Prefab_visu pvisu;
 
+    GameObject rotation;
+
+    Loader ld;
+
     bool visualizing = false;
     bool making = true;
 
@@ -15,8 +19,18 @@ public class Base_script : MonoBehaviour
         Cursor.lockState = CursorLockMode.Confined;
         Cursor.visible = false;
 
-        pmake = new Prefab_make();
+        ld = new Loader();
+        ld.LoadAll(); // load tout ce qu'il faut loader
+        transform.tag = "start"; // change le tag du gameobject de base
+
+        pmake = new Prefab_make(ld);
         pvisu = new Prefab_visu();
+        rotation = new GameObject("Rotation");
+
+        GameObject mc = GameObject.FindGameObjectWithTag("MainCamera");
+        rotation.AddComponent<CameraLookAt>();
+        rotation.transform.tag = "rotation";
+        rotation.GetComponent<CameraLookAt>()._camera = mc;
     }
 
     private void Update()
@@ -42,6 +56,7 @@ public class Base_script : MonoBehaviour
                 pvisu.clear();
             }
             pmake.update_make();
+            transform.position = new Vector3(-pmake.getMeanX(), 0, pmake.getMeanZ());
         }
         if(visualizing){
             if(old_visualizing_val != visualizing){
@@ -49,6 +64,10 @@ public class Base_script : MonoBehaviour
                 pvisu.charge_prefabs();
             }
             pvisu.update_visu();
+            if(!pvisu.prefab_list_is_empty())
+            {
+                transform.position = new Vector3(-pvisu.visualizedPrefab().transform.position.x, 0, pvisu.visualizedPrefab().transform.position.z);
+            }
         }
 
     }
