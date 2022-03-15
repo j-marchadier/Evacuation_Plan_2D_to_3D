@@ -227,7 +227,7 @@ public class Prefab_make
         // lis le fichier actuel
 
         string[] filelist_logos = Directory.GetFiles(Application.dataPath + "/", fileTag + "_logo.txt");
-        if(filelist_logos.Length>0) logofile = filelist_logos[0];
+        if(filelist_logos.Length>0) logofile = filelist_logos[0]; // recupere le ficher d'objets
 
 
 
@@ -272,7 +272,7 @@ public class Prefab_make
         cube.transform.localScale = new Vector3(wallWidth, wallSize, direction.magnitude + 0.5f);
         cube.transform.position = cube.transform.position + (direction / 2);
         cube.transform.LookAt(target);
-        // orient le mur dans la bonne direction
+        // oriente le mur dans la bonne direction
     }
 
 
