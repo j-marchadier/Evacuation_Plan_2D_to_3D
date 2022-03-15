@@ -44,6 +44,9 @@ public class mesh_maker : MonoBehaviour
 
     readfile rf;
     // permet de lire le fichier actuel
+
+    Loader ld;
+    // fait toutes les initialisations dont on a besoin
     string[] filelist_walls;
     // liste des fichiers
     string filename;
@@ -63,14 +66,7 @@ public class mesh_maker : MonoBehaviour
     void Start()
     {
         state = 0;
-        string[] taglist = {"wall","floor","roof"};
-        // liste de tous les tags existants dans la mesh.
-        // utile pour atteindre les objets créés
 
-        foreach(string tag in taglist){
-            // ajoute les tags s'ils n'existent pas
-            tagManagement(tag);
-        }
         nFile = 0;
         // on commence avec le 1er fichier
 
@@ -88,7 +84,9 @@ public class mesh_maker : MonoBehaviour
         adjustFloorSize = 52;
         previousFloorSize = adjustFloorSize;
 
-        while(!GetComponent<materialLoader>().isFinished());
+        ld = new Loader();
+
+        while(!ld.isFinished()) Debug.Log("Waiting for textures...");
         // on attend que le dictionnaire des textures ait fini d'initialiser
 
         old_hide_value = hide_roof;
@@ -213,35 +211,6 @@ public class mesh_maker : MonoBehaviour
         }
     }
 
-    private void tagManagement(string tag){
-         // Open tag manager
-        SerializedObject tagManager = new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset")[0]);
-        SerializedProperty tagsProp = tagManager.FindProperty("tags");
-        string s = tag;
-
-        bool found = false;
-        for (int i = 0; i < tagsProp.arraySize; i++)
-        {
-            SerializedProperty t = tagsProp.GetArrayElementAtIndex(i);
-            if (t.stringValue.Equals(s)) {
-                found = true;
-                break;
-                // si le tag est déja dans la liste, ne fait rien
-            }
-        }
-
-        if (!found)
-        {
-            // si le tag n'est pas dans la liste, on l'ajoute
-            tagsProp.InsertArrayElementAtIndex(0);
-            SerializedProperty n = tagsProp.GetArrayElementAtIndex(0);
-            n.stringValue = s;
-        }
-
-        tagManager.ApplyModifiedProperties();
-        // update les tags
-    }
-
     private void createMesh(){
         // créé le mesh pour le fichier actuel
         if(GameObject.Find("container") != null)
@@ -332,24 +301,16 @@ public class mesh_maker : MonoBehaviour
         // donne une texture a un objet
         Material[] materials = obj.GetComponent<MeshRenderer>().materials;
 
-        if(materials.Length > 0 && this.hasMat(mat))
+        if(materials.Length > 0 && ld.hasMat(mat))
         {
-            if(!mat_is_null(mat))
+            if(!ld.mat_is_null(mat))
             {
-                materials[0] = GetComponent<materialLoader>().DicoMat[mat];
+                materials[0] = ld.getMat(mat);
                 // récupere la texture correspondante au tag demandé
                 obj.GetComponent<MeshRenderer>().materials = materials;
                 // applique la texture
             }
         }
-    }
-
-    bool hasMat(string mat){
-        return (GetComponent<materialLoader>().DicoMat.ContainsKey(mat));
-    }
-
-    bool mat_is_null(string mat){
-        return GetComponent<materialLoader>().DicoMat[mat] == null;
     }
 
     void registerPrefab(){
@@ -358,17 +319,6 @@ public class mesh_maker : MonoBehaviour
         string prefabName = txtname.Split('.')[0];
         string pathname = "Assets/Resources/Prefab/prefab_" + prefabName + ".prefab";
         //créé un nom pour la préfab par rapport au nom du fichier correspondant
-
-        if(!Directory.Exists("Assets/Resources"))
-        {
-            Directory.CreateDirectory("Assets/Resources");
-            // créé un dossier pour stocker la préfab si besoin
-        }
-        if (!Directory.Exists("Assets/Resources/Prefab"))
-        {
-            Directory.CreateDirectory("Assets/Resources/Prefab");
-            // créé un dossier pour stocker la préfab si besoin
-        }
 
         PrefabUtility.SaveAsPrefabAsset(GameObject.Find("container"),pathname);
         // sauvegarde un préfab de l'objet actuel
