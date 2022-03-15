@@ -4,43 +4,30 @@ using UnityEngine;
 using UnityEditor;
 using System.IO;
 using System.Linq;
-using UnityEngine.SceneManagement;
 
-public class mesh_maker : MonoBehaviour
+public class Prefab_make
 {
     GameObject container;
     // contient tout les nouveaux objets qui vont former notre mesh
 
     public bool hide_roof;
     bool old_hide_value;
-    [SerializeField]
-    [Range(1, 100)]
+
     float wallSize;
 
     float previousWallSize;
     float currentWallSize;
 
-    [SerializeField]
-    [Range(1, 10)]
     float wallWidth;
 
     float previousWallWidth;
     float currentWallWidth;
 
-    [SerializeField]
-    [Range(0, 60)]
     float adjustFloorSize;
 
     float previousFloorSize;
     float currentFloorSize;
 
-    [SerializeField]
-    bool makePrefab;
-    // permet de creer des prefab automatiquement
-
-    [SerializeField]
-    bool cycle;
-    // permet de passer au fichier de valeurs suivant s'il y a
 
     readfile rf;
     // permet de lire le fichier actuel
@@ -48,24 +35,24 @@ public class mesh_maker : MonoBehaviour
     Loader ld;
     // fait toutes les initialisations dont on a besoin
     string[] filelist_walls;
-    // liste des fichiers
+    // liste des fichiers lisibles
     string filename;
     // nom fichier actuel
 
     char fileTag;
+    // le tag du fichier (0, 1, 2, ...)
 
     string logofile;
 
     int nFile;
     // numéro fichier actuel dans la liste
 
-    int state = 0;
-    // état. 0 = make prefab. 1 = visualize prefabs. 2 = quit.
+    bool just_switched;
+
 
     // Start is called before the first frame update
-    void Start()
+    public Prefab_make()
     {
-        state = 0;
 
         nFile = 0;
         // on commence avec le 1er fichier
@@ -73,7 +60,7 @@ public class mesh_maker : MonoBehaviour
         filelist_walls = Directory.GetFiles(Application.dataPath + "/", "*_mur.txt");
         // on récupere tous les fichiers présents contenant des murs
         if(filelist_walls.Length <= 0){
-            Debug.Log("No file to read !");
+            Debug.Log("No file to read ! Add files to Assets/");
             UnityEditor.EditorApplication.isPlaying = false;
         }
 
@@ -95,12 +82,21 @@ public class mesh_maker : MonoBehaviour
         // on cree la premiere mesh
     }
 
-    private void Update()
+    public void update_make()
     {
-        if (Input.GetKeyDown(KeyCode.P)) state = 0;
-        else if (Input.GetKeyDown(KeyCode.V)) state = 1;
-        else if (Input.GetKeyDown(KeyCode.Escape)) state = 2;
-        else if (Input.GetKeyDown(KeyCode.H)) hide_roof = !hide_roof; // hide roof button
+        if(just_switched){
+            createMesh();
+            just_switched = false;
+        }
+        bool right_cycle = false; // passe au suivant
+        bool left_cycle = false;
+        bool makePrefab = false; // fait un prefab
+
+        if (Input.GetKeyDown(KeyCode.Return)) makePrefab = true;
+        if(Input.GetKeyDown(KeyCode.RightArrow)) right_cycle = true;
+        if(Input.GetKeyDown(KeyCode.LeftArrow)) left_cycle = true;
+
+        if (Input.GetKeyDown(KeyCode.H)) hide_roof = !hide_roof; // hide roof button
 
         if (Input.GetKey(KeyCode.A)) {
             if (wallSize >= 1) wallSize-=0.1f;
@@ -127,30 +123,31 @@ public class mesh_maker : MonoBehaviour
             if (adjustFloorSize <= 60) adjustFloorSize+=0.1f;
         }
 
-
-        switch (state){
-            case 0: // si on fait des prefab
-                if(Input.GetKeyDown(KeyCode.Return)) makePrefab = true;
-                if(Input.GetKeyDown(KeyCode.RightArrow)) cycle = true;
-                updateMesh();
-
-                if(cycle){
-                    cycle = false;
-                    if(nFile+1<filelist_walls.Length) nFile += 1;
-                    else nFile = 0;
-                    createMesh();
-                    // passe au fichier suivant dans la liste et créé le mesh correspondant
-                }
-                break;
-
-            case 1:
-                SceneManager.LoadScene(1);
-                break;
-
-            case 2:
-                UnityEditor.EditorApplication.isPlaying = false;
-                break;
+        if (right_cycle)
+        {
+            right_cycle = false;
+            nFile += 1;
+            if(nFile >= filelist_walls.Length)
+            {
+                nFile = 0;
+            }
+            createMesh();
         }
+        if (left_cycle)
+        {
+            left_cycle = false;
+            nFile -= 1;
+            if(nFile < 0)
+            {
+                nFile = filelist_walls.Length - 1;
+            }
+            createMesh();
+        }
+        if(makePrefab){
+            registerPrefab();
+        }
+
+        updateMesh();
     }
 
     private void updateMesh(){
@@ -205,17 +202,13 @@ public class mesh_maker : MonoBehaviour
         previousFloorSize = currentFloorSize;
         // update les valeurs précédentes
 
-        if(makePrefab) {
-            registerPrefab();
-            // fait un préfab de l'objet actuel
-        }
     }
 
     private void createMesh(){
         // créé le mesh pour le fichier actuel
         if(GameObject.Find("container") != null)
         {
-            DestroyImmediate(GameObject.Find("container"));
+            GameObject.DestroyImmediate(GameObject.Find("container"));
             // si il existe un objet "container", détruit le
         }
         container = new GameObject("container");
@@ -322,8 +315,13 @@ public class mesh_maker : MonoBehaviour
 
         PrefabUtility.SaveAsPrefabAsset(GameObject.Find("container"),pathname);
         // sauvegarde un préfab de l'objet actuel
-        makePrefab = false;
-        // makeprefab, comme cycle, sert comme un bouton. Il se met directement a "false" apres avoir effectué son opération
     }
 
+    public void setSwitch(bool b){
+        this.just_switched = b;
+    }
+
+    public void clear(){
+        GameObject.Destroy(container);
+    }
 }
