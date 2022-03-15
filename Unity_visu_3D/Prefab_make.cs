@@ -241,6 +241,104 @@ public class Prefab_make
         previousFloorSize = adjustFloorSize;
         // update les valeurs précédentes de taille et épaisseur des murs et plafond/sol
 
+        Debug.Log("avant make roof floor");
+        make_roof_floor();
+
+    }
+
+    void SetTarget(GameObject cube, Vector3 target)
+    {
+        Vector3 direction = target - cube.transform.position;
+        cube.transform.localScale = new Vector3(wallWidth, wallSize, direction.magnitude + 0.5f);
+        cube.transform.position = cube.transform.position + (direction / 2);
+        cube.transform.LookAt(target);
+        // oriente le mur dans la bonne direction
+    }
+
+    private void make_roof_floor(){
+        Debug.Log("dans make roof floor");
+
+        float maxX = rf.maxX;
+        float minX = rf.minX;
+        float maxZ = rf.maxZ;
+        float minZ = rf.minZ; // recup extremes
+
+        List<GameObject> external_walls = new List<GameObject>(); // liste des murs exterieurs
+        GameObject bullet = GameObject.CreatePrimitive(PrimitiveType.Cube); // le bullet
+        bullet.GetComponent<MeshRenderer>().enabled = false;
+        bullet.AddComponent<bullet_check>();
+        bullet.AddComponent<Rigidbody>();
+
+        for(float i = maxX; i>minX;i--){ // depuis le bas
+            Vector3 pos = bullet.transform.position;
+            pos.x = i;
+            pos.z = minZ - 10;
+            bullet.transform.position = pos;
+            while(bullet.transform.position.z < maxZ && !bullet.GetComponent<bullet_check>().has_collided()){
+                bullet.transform.Translate(Vector3.forward * Time.deltaTime * 100,Space.World);
+            }
+            if(bullet.GetComponent<bullet_check>().has_collided()){
+                if(!external_walls.Contains(bullet.GetComponent<bullet_check>().getCollision()))
+                    external_walls.Add(bullet.GetComponent<bullet_check>().getCollision());
+                bullet.GetComponent<bullet_check>().clear();
+                Debug.Log("hit");
+            }
+        }
+        for(float i = minZ; i<maxZ;i++){ // depuis la gauche
+            Vector3 pos = bullet.transform.position;
+            pos.z = i;
+            pos.x = minX - 10;
+            bullet.transform.position = pos;
+            while(bullet.transform.position.x < maxX && !bullet.GetComponent<bullet_check>().has_collided()){
+                bullet.transform.Translate(Vector3.right * Time.deltaTime * 100,Space.World);
+            }
+            if(bullet.GetComponent<bullet_check>().has_collided()){
+                if(!external_walls.Contains(bullet.GetComponent<bullet_check>().getCollision()))
+                    external_walls.Add(bullet.GetComponent<bullet_check>().getCollision());
+                bullet.GetComponent<bullet_check>().clear();
+                Debug.Log("hit");
+            }
+        }
+        for(float i = minX; i<maxX;i++){ // depuis le haut
+            Vector3 pos = bullet.transform.position;
+            pos.x = i;
+            pos.z = maxZ + 10;
+            bullet.transform.position = pos;
+            while(bullet.transform.position.z > minZ && !bullet.GetComponent<bullet_check>().has_collided()){
+                bullet.transform.Translate(-Vector3.forward * Time.deltaTime * 100,Space.World);
+            }
+            if(bullet.GetComponent<bullet_check>().has_collided()){
+                if(!external_walls.Contains(bullet.GetComponent<bullet_check>().getCollision()))
+                    external_walls.Add(bullet.GetComponent<bullet_check>().getCollision());
+
+                bullet.GetComponent<bullet_check>().clear();
+                Debug.Log("hit");
+            }
+
+        }
+        for(float i = maxZ; i>minZ;i--){ // depuis la droite
+            Vector3 pos = bullet.transform.position;
+            pos.z = i;
+            pos.x = maxX + 10;
+            bullet.transform.position = pos;
+            while(bullet.transform.position.x > minX && !bullet.GetComponent<bullet_check>().has_collided()){
+                bullet.transform.Translate(-Vector3.right * Time.deltaTime * 100,Space.World);
+            }
+            if(bullet.GetComponent<bullet_check>().has_collided()){
+                if(!external_walls.Contains(bullet.GetComponent<bullet_check>().getCollision()))
+                    external_walls.Add(bullet.GetComponent<bullet_check>().getCollision());
+                bullet.GetComponent<bullet_check>().clear();
+                Debug.Log("hit");
+            }
+
+        }
+
+        foreach(GameObject w in external_walls){
+            w.GetComponent<MeshRenderer>().enabled = false;
+            Debug.Log(w);
+        }
+
+        /*
         GameObject cube_floor_center = GameObject.CreatePrimitive(PrimitiveType.Cube);
         cube_floor_center.gameObject.tag = "floor";
         cube_floor_center.transform.parent = container.transform;
@@ -262,15 +360,7 @@ public class Prefab_make
         LoadMaterial(cube_floor_center,"floor");
         LoadMaterial(cube_roof_center,"roof");
         // donne une texture au sol et au plafond
-    }
-
-    void SetTarget(GameObject cube, Vector3 target)
-    {
-        Vector3 direction = target - cube.transform.position;
-        cube.transform.localScale = new Vector3(wallWidth, wallSize, direction.magnitude + 0.5f);
-        cube.transform.position = cube.transform.position + (direction / 2);
-        cube.transform.LookAt(target);
-        // oriente le mur dans la bonne direction
+        */
     }
 
 
@@ -280,6 +370,7 @@ public class Prefab_make
         Vector3 A = new Vector3(-rf.myarray[index], 0, rf.myarray[index + 1]);
         Vector3 B = new Vector3(-rf.myarray[index + 2], 0, rf.myarray[index + 3]);
         GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        cube.name = "wall_"+index;
         cube.gameObject.tag = "wall";
         cube.transform.parent = container.transform;
         cube.transform.position = A;
