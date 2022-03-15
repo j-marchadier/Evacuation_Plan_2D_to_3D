@@ -1,8 +1,14 @@
 import cv2
 import numpy as np
 
+
+a= []
+for i in range(5):
+    a.append(i)
+a=np.array(a)
+print(a[a>2])
 # Load image, grayscale, Gaussian blur, adaptive threshold
-image = cv2.imread('resultat_detection_logo.png')
+image = cv2.imread('data/resultat_detection_logo.png')
 height, width = image.shape[:2]
 r = width / height
 image = cv2.resize(image, (int(1080 * r), 1080))

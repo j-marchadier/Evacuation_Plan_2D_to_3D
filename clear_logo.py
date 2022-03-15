@@ -46,7 +46,7 @@ def DetectLogo():
     loc = np.where( res >= threshold)
     for pt in zip(*loc[::-1]):
         cv2.rectangle(img_rgb, pt, (pt[0] + w, pt[1] + h), (0,255,0), 2)
-    cv2.imwrite('resultat_detection_logo.png',img_rgb)
+    cv2.imwrite('data/resultat_detection_logo.png', img_rgb)
     
 def LineDetection():
     img = cv2.imread(cv2.samples.findFile(SelectFile(title = "Sélectionnez une map pour detecter les lignes")))
