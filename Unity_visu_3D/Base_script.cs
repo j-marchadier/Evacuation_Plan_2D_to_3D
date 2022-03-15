@@ -12,6 +12,9 @@ public class Base_script : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Cursor.lockState = CursorLockMode.Confined;
+        Cursor.visible = false;
+
         pmake = new Prefab_make();
         pvisu = new Prefab_visu();
     }
@@ -41,7 +44,10 @@ public class Base_script : MonoBehaviour
             pmake.update_make();
         }
         if(visualizing){
-            if(old_visualizing_val != visualizing) pmake.clear();
+            if(old_visualizing_val != visualizing){
+                pmake.clear();
+                pvisu.charge_prefabs();
+            }
             pvisu.update_visu();
         }
 

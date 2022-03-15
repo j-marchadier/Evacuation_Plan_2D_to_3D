@@ -13,12 +13,7 @@ public class Prefab_visu
 
     public Prefab_visu()
     {
-        prefabList = Resources.LoadAll<GameObject>("Prefab");
-
-        if(prefabList.Length <= 0)
-        {
-            Debug.Log("No prefab to visualize");
-        }
+        charge_prefabs();
 
     }
 
@@ -70,5 +65,14 @@ public class Prefab_visu
 
     public void clear(){
         GameObject.Destroy(this.currentPrefab);
+    }
+
+    public void charge_prefabs(){
+        prefabList = Resources.LoadAll<GameObject>("Prefab");
+
+        if(prefabList.Length <= 0)
+        {
+            Debug.Log("No prefab to visualize");
+        }
     }
 }
