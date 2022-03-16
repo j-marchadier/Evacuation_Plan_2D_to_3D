@@ -21,6 +21,7 @@ public class CameraLookAt : MonoBehaviour
         rf.read();
         transform.position = new Vector3(-rf.meanX, 0, rf.meanZ);
         _camera.transform.parent = this.transform;
+        _camera.GetComponent<Camera>().farClipPlane = 10000;
     }
     // Update is called once per frame
     void Update()

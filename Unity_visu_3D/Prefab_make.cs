@@ -265,11 +265,12 @@ public class Prefab_make
 
         List<GameObject> external_walls = new List<GameObject>(); // liste des murs exterieurs
         GameObject bullet = GameObject.CreatePrimitive(PrimitiveType.Cube); // le bullet
+        bullet.name = "bulletCheck";
         bullet.GetComponent<MeshRenderer>().enabled = false;
         bullet.AddComponent<bullet_check>();
         bullet.AddComponent<Rigidbody>();
 
-        for(float i = maxX; i>minX;i--){ // depuis le bas
+        for(float i = maxX; i>minX;i--){ // depuis le bas (vue du dessus, z est vers le nord)
             Vector3 pos = bullet.transform.position;
             pos.x = i;
             pos.z = minZ - 10;
@@ -332,6 +333,8 @@ public class Prefab_make
             }
 
         }
+
+        //GameObject.Destroy(bullet);
 
         foreach(GameObject w in external_walls){
             w.GetComponent<MeshRenderer>().enabled = false;
