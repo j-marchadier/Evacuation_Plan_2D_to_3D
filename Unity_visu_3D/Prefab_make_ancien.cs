@@ -265,46 +265,34 @@ public class Prefab_make
 
         List<GameObject> external_walls = new List<GameObject>(); // liste des murs exterieurs
         GameObject bullet = GameObject.CreatePrimitive(PrimitiveType.Cube); // le bullet
-        bullet.transform.rotation = Quaternion.identity; // no rotation
         bullet.name = "bulletCheck";
         bullet.GetComponent<MeshRenderer>().enabled = false;
         bullet.AddComponent<bullet_check>();
         bullet.AddComponent<Rigidbody>();
-        bullet.GetComponent<Rigidbody>().useGravity = false; // no gravity
-        bullet.GetComponent<Rigidbody>().angularDrag = 0; // no drag
-        bullet.GetComponent<Rigidbody>().rotation = Quaternion.identity; // no rotation
 
-
-        Debug.Log("avant le 1");
         for(float i = maxX; i>minX;i--){ // depuis le bas (vue du dessus, z est vers le nord)
             Vector3 pos = bullet.transform.position;
             pos.x = i;
             pos.z = minZ - 10;
             bullet.transform.position = pos;
-            while(bullet.transform.position.z >= minZ - 10 && bullet.transform.position.z < maxZ && !bullet.GetComponent<bullet_check>().has_collided()){
-                bullet.GetComponent<Rigidbody>().MovePosition(bullet.transform.position + Vector3.forward * Time.deltaTime * 100); // mouvement selon l'axe z
-                Debug.Log("dans le while 1");
+            while(bullet.transform.position.z < maxZ && !bullet.GetComponent<bullet_check>().has_collided()){
+                bullet.transform.Translate(Vector3.forward * Time.deltaTime * 100,Space.World);
             }
-            bullet.GetComponent<Rigidbody>().velocity = Vector3.zero; // stoppe le rigidbody
             if(bullet.GetComponent<bullet_check>().has_collided()){
-                if(!external_walls.Contains(bullet.GetComponent<bullet_check>().getCollision())) // verifie wall deja dan la liste
-                    external_walls.Add(bullet.GetComponent<bullet_check>().getCollision()); // ajoute wall a la liste
-                bullet.GetComponent<bullet_check>().clear(); // vide les info du bullet
+                if(!external_walls.Contains(bullet.GetComponent<bullet_check>().getCollision()))
+                    external_walls.Add(bullet.GetComponent<bullet_check>().getCollision());
+                bullet.GetComponent<bullet_check>().clear();
                 Debug.Log("hit");
             }
         }
-        Debug.Log("1er passé");
-
         for(float i = minZ; i<maxZ;i++){ // depuis la gauche
             Vector3 pos = bullet.transform.position;
             pos.z = i;
             pos.x = minX - 10;
             bullet.transform.position = pos;
-            while(bullet.transform.position.x >= minX - 10 && bullet.transform.position.x < maxX && !bullet.GetComponent<bullet_check>().has_collided()){
-                bullet.GetComponent<Rigidbody>().MovePosition(bullet.transform.position + Vector3.right * Time.deltaTime * 100);
-                Debug.Log("dans le while 2");
+            while(bullet.transform.position.x < maxX && !bullet.GetComponent<bullet_check>().has_collided()){
+                bullet.transform.Translate(Vector3.right * Time.deltaTime * 100,Space.World);
             }
-            bullet.GetComponent<Rigidbody>().velocity = Vector3.zero;
             if(bullet.GetComponent<bullet_check>().has_collided()){
                 if(!external_walls.Contains(bullet.GetComponent<bullet_check>().getCollision()))
                     external_walls.Add(bullet.GetComponent<bullet_check>().getCollision());
@@ -312,18 +300,14 @@ public class Prefab_make
                 Debug.Log("hit");
             }
         }
-        Debug.Log("2e passé");
-
         for(float i = minX; i<maxX;i++){ // depuis le haut
             Vector3 pos = bullet.transform.position;
             pos.x = i;
             pos.z = maxZ + 10;
             bullet.transform.position = pos;
-            while(bullet.transform.position.z <= maxZ + 10 && bullet.transform.position.z > minZ && !bullet.GetComponent<bullet_check>().has_collided()){
-                bullet.GetComponent<Rigidbody>().MovePosition(bullet.transform.position -Vector3.forward * Time.deltaTime * 100);
-                Debug.Log("dans le while 3");
+            while(bullet.transform.position.z > minZ && !bullet.GetComponent<bullet_check>().has_collided()){
+                bullet.transform.Translate(-Vector3.forward * Time.deltaTime * 100,Space.World);
             }
-            bullet.GetComponent<Rigidbody>().velocity = Vector3.zero;
             if(bullet.GetComponent<bullet_check>().has_collided()){
                 if(!external_walls.Contains(bullet.GetComponent<bullet_check>().getCollision()))
                     external_walls.Add(bullet.GetComponent<bullet_check>().getCollision());
@@ -333,18 +317,14 @@ public class Prefab_make
             }
 
         }
-        Debug.Log("3e passé");
-
         for(float i = maxZ; i>minZ;i--){ // depuis la droite
             Vector3 pos = bullet.transform.position;
             pos.z = i;
             pos.x = maxX + 10;
             bullet.transform.position = pos;
-            while(bullet.transform.position.x <= maxX + 10 && bullet.transform.position.x > minX && !bullet.GetComponent<bullet_check>().has_collided()){
-                bullet.GetComponent<Rigidbody>().MovePosition(bullet.transform.position - Vector3.right * Time.deltaTime * 100);
-                Debug.Log("dans le while 4");
+            while(bullet.transform.position.x > minX && !bullet.GetComponent<bullet_check>().has_collided()){
+                bullet.transform.Translate(-Vector3.right * Time.deltaTime * 100,Space.World);
             }
-            bullet.GetComponent<Rigidbody>().velocity = Vector3.zero;
             if(bullet.GetComponent<bullet_check>().has_collided()){
                 if(!external_walls.Contains(bullet.GetComponent<bullet_check>().getCollision()))
                     external_walls.Add(bullet.GetComponent<bullet_check>().getCollision());
@@ -353,7 +333,6 @@ public class Prefab_make
             }
 
         }
-        Debug.Log("end of operations");
 
         //GameObject.Destroy(bullet);
 
