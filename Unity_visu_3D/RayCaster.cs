@@ -61,7 +61,7 @@ public class RayCaster : MonoBehaviour
         this.start_operation();
     }
 
-    void FixedUpdate()
+    void Update()
     {
         if (this.gettingWalls && this.wall_list_loaded) this.get_external_walls();
         // si on est entrain de chercher les murs exterieurs

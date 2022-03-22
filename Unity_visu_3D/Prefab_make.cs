@@ -49,6 +49,10 @@ public class Prefab_make
 
     bool just_switched;
 
+    bool mesh_made = false;
+
+    GameObject rayMaker;
+
 
     // Start is called before the first frame update
     public Prefab_make(Loader l)
@@ -77,7 +81,11 @@ public class Prefab_make
 
         old_hide_value = hide_roof;
 
+        this.rayMaker = new GameObject();
+        this.rayMaker.AddComponent<RayCaster>();
+
         just_switched = true;
+        mesh_made = false;
         // on met le switch pour creer la premiere mesh
     }
 
@@ -86,71 +94,81 @@ public class Prefab_make
         if (just_switched)
         {
             createMesh();
+            mesh_made = true;
             just_switched = false;
         }
-        bool right_cycle = false; // passe au suivant
-        bool left_cycle = false;
-        bool makePrefab = false; // fait un prefab
-
-        if (Input.GetKeyDown(KeyCode.Return)) makePrefab = true;
-        if (Input.GetKeyDown(KeyCode.RightArrow)) right_cycle = true;
-        if (Input.GetKeyDown(KeyCode.LeftArrow)) left_cycle = true;
-
-        if (Input.GetKeyDown(KeyCode.H)) hide_roof = !hide_roof; // hide roof button
-
-        if (Input.GetKey(KeyCode.A))
+        if (!mesh_made && this.rayMaker.GetComponent<RayCaster>().OpIsDone())
         {
-            if (wallSize >= 1) wallSize -= 0.1f;
+            mesh_made = true;
         }
-        else if (Input.GetKey(KeyCode.Z))
+        else if (mesh_made)
         {
-            if (wallSize <= 100) wallSize += 0.1f;
-        }
+            bool right_cycle = false; // passe au suivant
+            bool left_cycle = false;
+            bool makePrefab = false; // fait un prefab
 
-        if (Input.GetKey(KeyCode.Q))
-        {
-            if (wallWidth >= 1) wallWidth -= 0.1f;
-        }
-        else if (Input.GetKey(KeyCode.S))
-        {
-            if (wallWidth <= 10) wallWidth += 0.1f;
-        }
+            if (Input.GetKeyDown(KeyCode.Return)) makePrefab = true;
+            if (Input.GetKeyDown(KeyCode.RightArrow)) right_cycle = true;
+            if (Input.GetKeyDown(KeyCode.LeftArrow)) left_cycle = true;
 
-        if (Input.GetKey(KeyCode.W))
-        {
-            if (adjustFloorSize >= 0) adjustFloorSize -= 0.1f;
-        }
-        else if (Input.GetKey(KeyCode.X))
-        {
-            if (adjustFloorSize <= 60) adjustFloorSize += 0.1f;
-        }
+            if (Input.GetKeyDown(KeyCode.H)) hide_roof = !hide_roof; // hide roof button
 
-        if (right_cycle)
-        {
-            right_cycle = false;
-            nFile += 1;
-            if (nFile >= filelist_walls.Length)
+            if (Input.GetKey(KeyCode.A))
             {
-                nFile = 0;
+                if (wallSize >= 1) wallSize -= 0.1f;
             }
-            createMesh();
-        }
-        if (left_cycle)
-        {
-            left_cycle = false;
-            nFile -= 1;
-            if (nFile < 0)
+            else if (Input.GetKey(KeyCode.Z))
             {
-                nFile = filelist_walls.Length - 1;
+                if (wallSize <= 100) wallSize += 0.1f;
             }
-            createMesh();
-        }
-        if (makePrefab)
-        {
-            registerPrefab();
-        }
 
-        updateMesh();
+            if (Input.GetKey(KeyCode.Q))
+            {
+                if (wallWidth >= 1) wallWidth -= 0.1f;
+            }
+            else if (Input.GetKey(KeyCode.S))
+            {
+                if (wallWidth <= 10) wallWidth += 0.1f;
+            }
+
+            if (Input.GetKey(KeyCode.W))
+            {
+                if (adjustFloorSize >= 0) adjustFloorSize -= 0.1f;
+            }
+            else if (Input.GetKey(KeyCode.X))
+            {
+                if (adjustFloorSize <= 60) adjustFloorSize += 0.1f;
+            }
+
+            if (right_cycle)
+            {
+                right_cycle = false;
+                nFile += 1;
+                if (nFile >= filelist_walls.Length)
+                {
+                    nFile = 0;
+                }
+                mesh_made = false;
+                createMesh();
+            }
+            if (left_cycle)
+            {
+                left_cycle = false;
+                nFile -= 1;
+                if (nFile < 0)
+                {
+                    nFile = filelist_walls.Length - 1;
+                }
+                mesh_made = false;
+                createMesh();
+            }
+            if (makePrefab)
+            {
+                registerPrefab();
+            }
+
+            updateMesh();
+        }
     }
 
     private void updateMesh()
@@ -273,20 +291,8 @@ public class Prefab_make
         float maxZ = rf.maxZ;
         float minZ = rf.minZ; // recup extremes
 
-        GameObject rayMaker = new GameObject();
-        rayMaker.AddComponent<RayCaster>();
-        rayMaker.GetComponent<RayCaster>().setVal(minX, maxX, minZ, maxZ);
+        this.rayMaker.GetComponent<RayCaster>().setVal(minX, maxX, minZ, maxZ);
         // set the values and start the recognition of external walls
-
-        while (!rayMaker.GetComponent<RayCaster>().OpIsDone())
-        {
-            Debug.Log("blocked here !!!");
-            Debug.Log(rayMaker.GetComponent<RayCaster>().OpIsDone());
-            ; // wait until the raycast is finished
-        }
-
-        GameObject.Destroy(rayMaker);
-
 
 
         /*
