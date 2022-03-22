@@ -69,7 +69,7 @@ public class RayCaster : MonoBehaviour
 
     private void get_external_walls()
     {
-        Debug.Log("dans make roof floor");
+        Debug.Log("dans get external walls");
         float distance = 120;
         float ecart = 100;
         float duration = 300;
@@ -86,13 +86,17 @@ public class RayCaster : MonoBehaviour
 
             Debug.DrawRay(startpoint, direction * distance, Color.red, duration); // debug
 
-            if (Physics.Raycast(startpoint, direction, out hit, maxZ + ecart) && !this.external_walls.Contains(hit.collider.gameObject))
+            if (Physics.Raycast(startpoint, direction, out hit, maxZ + ecart))
             {
-                this.external_walls.Add(hit.collider.gameObject); // ajoute objet touché
-                Debug.Log("Hit");
-            }
 
+                if (!this.external_walls.Contains(hit.collider.gameObject))
+                {
+                    this.external_walls.Add(hit.collider.gameObject); // ajoute objet touché
+                    Debug.Log("Hit");
+                }
+            }
         }
+
         Debug.Log("apres le 1");
 
         Debug.Log("avant le 2");
@@ -101,12 +105,16 @@ public class RayCaster : MonoBehaviour
             Vector3 startpoint = new Vector3(minX - ecart, 0, i); // point de départ
             Vector3 direction = Vector3.right;    // direction
 
-            Debug.DrawRay(startpoint, direction * distance, Color.red, duration); // debug
+            Debug.DrawRay(startpoint, direction * distance, Color.green, duration); // debug
 
-            if (Physics.Raycast(startpoint, direction, out hit, maxX + ecart) && !this.external_walls.Contains(hit.collider.gameObject))
+            if (Physics.Raycast(startpoint, direction, out hit, maxX + ecart))
             {
-                this.external_walls.Add(hit.collider.gameObject); // ajoute objet touché
-                Debug.Log("Hit");
+
+                if (!this.external_walls.Contains(hit.collider.gameObject))
+                {
+                    this.external_walls.Add(hit.collider.gameObject); // ajoute objet touché
+                    Debug.Log("Hit");
+                }
             }
 
         }
@@ -118,12 +126,16 @@ public class RayCaster : MonoBehaviour
             Vector3 startpoint = new Vector3(i, 0, maxZ + ecart); // point de départ
             Vector3 direction = -Vector3.forward;    // direction
 
-            Debug.DrawRay(startpoint, direction * distance, Color.red, duration); // debug
+            Debug.DrawRay(startpoint, direction * distance, Color.blue, duration); // debug
 
-            if (Physics.Raycast(startpoint, direction, out hit, minZ - ecart) && !this.external_walls.Contains(hit.collider.gameObject))
+            if (Physics.Raycast(startpoint, direction, out hit, minZ - ecart))
             {
-                this.external_walls.Add(hit.collider.gameObject); // ajoute objet touché
-                Debug.Log("Hit");
+
+                if (!this.external_walls.Contains(hit.collider.gameObject))
+                {
+                    this.external_walls.Add(hit.collider.gameObject); // ajoute objet touché
+                    Debug.Log("Hit");
+                }
             }
 
         }
@@ -135,12 +147,16 @@ public class RayCaster : MonoBehaviour
             Vector3 startpoint = new Vector3(maxX + ecart, 0, i); // point de départ
             Vector3 direction = -Vector3.right;    // direction
 
-            Debug.DrawRay(startpoint, direction * distance, Color.red, duration); // debug
+            Debug.DrawRay(startpoint, direction * distance, Color.yellow, duration); // debug
 
-            if (Physics.Raycast(startpoint, direction, out hit, maxX - ecart) && !this.external_walls.Contains(hit.collider.gameObject))
+            if (Physics.Raycast(startpoint, direction, out hit, minX - ecart))
             {
-                this.external_walls.Add(hit.collider.gameObject); // ajoute objet touché
-                Debug.Log("Hit");
+
+                if (!this.external_walls.Contains(hit.collider.gameObject))
+                {
+                    this.external_walls.Add(hit.collider.gameObject); // ajoute objet touché
+                    Debug.Log("Hit");
+                }
             }
 
         }
