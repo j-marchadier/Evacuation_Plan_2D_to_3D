@@ -16,8 +16,8 @@ public class Base_script : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Cursor.lockState = CursorLockMode.Confined;
-        Cursor.visible = false;
+        //Cursor.lockState = CursorLockMode.Confined;
+        //Cursor.visible = false;
 
         ld = new Loader();
         ld.LoadAll(); // load tout ce qu'il faut loader
@@ -28,6 +28,7 @@ public class Base_script : MonoBehaviour
         rotation = new GameObject("Rotation");
 
         GameObject mc = GameObject.FindGameObjectWithTag("MainCamera");
+        mc.transform.position = new Vector3(-528, 449, -369); //c'est la position à avoir au début
         rotation.AddComponent<CameraLookAt>();
         rotation.transform.tag = "rotation";
         rotation.GetComponent<CameraLookAt>()._camera = mc;
