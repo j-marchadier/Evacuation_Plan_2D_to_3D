@@ -1,10 +1,11 @@
-## si on a "point depart ligne / point arrivée ligne" -> creer mesh
+# si on a "point depart ligne / point arrivée ligne" -> creer mesh
 import open3d as o3d
 import numpy as np
 import pymeshlab
 import sys
 
-def arrange_name(filename,extension):
+
+def arrange_name(filename, extension):
     idx = filename.rfind('.')
     if idx <= 0:
         return filename+extension
@@ -12,45 +13,49 @@ def arrange_name(filename,extension):
     else:
         return filename
 
-def dist_calc(x,y):
-    return np.sqrt(np.power(x,2) + np.power(y,2))
+
+def dist_calc(x, y):
+    return np.sqrt(np.power(x, 2) + np.power(y, 2))
+
 
 def dist_a_zero(x):
-    return dist_calc(x,0)
+    return dist_calc(x, 0)
 
-def dist_p_calc(p1,p2):
-    return np.sqrt(np.power(p1[0] - p2[0],2) + np.power(p1[1] - p2[1],2))
+
+def dist_p_calc(p1, p2):
+    return np.sqrt(np.power(p1[0] - p2[0], 2) + np.power(p1[1] - p2[1], 2))
+
 
 def dist_a_p_zero(p1):
-    return dist_p_calc(p1,[0,0,0])
+    return dist_p_calc(p1, [0, 0, 0])
 
 
 def main():
     wall_size = 50
 
     filename = sys.argv[1]
-    filename = arrange_name(filename,".txt")
+    filename = arrange_name(filename, ".txt")
 
     array_in = np.genfromtxt(filename, delimiter=';')
     #array_in = np.reshape(array_in.flatten(),(len(array_in),2,2))
 
-
-    ddarr = np.reshape(array_in.flatten(),(-1,2))
-    array_coords = np.insert(ddarr,1,0,axis=1) # mettre la valeur y au centre, à 0
-
+    ddarr = np.reshape(array_in.flatten(), (-1, 2))
+    # mettre la valeur y au centre, à 0
+    array_coords = np.insert(ddarr, 1, 0, axis=1)
 
     new_array_coords = np.copy(array_coords)
-    new_array_coords[:,1] = wall_size # liste des points copiée pour le haut du mur, la valeur y au centre à 2
-    all_points = np.concatenate((array_coords,new_array_coords),axis=0) # liste complete des points dans l'ordre bas->haut des murs
-    #print(all_points)
+    # liste des points copiée pour le haut du mur, la valeur y au centre à 2
+    new_array_coords[:, 1] = wall_size
+    # liste complete des points dans l'ordre bas->haut des murs
+    all_points = np.concatenate((array_coords, new_array_coords), axis=0)
+    print(all_points)
 
-
-    nb_lignes = len(array_in) # nb de lignes a tracer
-    nb_tri = 4 #nb de triangles a faire pour chaque ligne, soit 4.
-
+    nb_lignes = len(array_in)  # nb de lignes a tracer
+    nb_tri = 4  # nb de triangles a faire pour chaque ligne, soit 4.
 
     #mesh = o3d.geometry.TriangleMesh()
-    liste_triangles = [[0]*3 for i in range(nb_lignes*nb_tri + 8)] # le +8 pour sol et plafond
+    # le +8 pour sol et plafond
+    liste_triangles = [[0]*3 for i in range(nb_lignes*nb_tri + 8)]
     # pour stocker tous les triangles
 
     for i in range(0, nb_lignes*2, 2):
@@ -58,15 +63,15 @@ def main():
         triangle0 = [i, i + nb_lignes * 2, i + nb_lignes * 2 + 1]
         triangle1 = [i + nb_lignes * 2 + 1, i + nb_lignes * 2, i]
         triangle2 = [i, i + nb_lignes * 2 + 1, i + 1]
-        triangle3 = [i + 1, i + nb_lignes * 2 + 1, i] # tracer les 4 triangles
+        triangle3 = [i + 1, i + nb_lignes * 2 + 1, i]  # tracer les 4 triangles
 
         liste_triangles[0 + (i//2)*nb_tri] = triangle0
         liste_triangles[1 + (i//2)*nb_tri] = triangle1
         liste_triangles[2 + (i//2)*nb_tri] = triangle2
-        liste_triangles[3 + (i//2)*nb_tri] = triangle3 # stoker les 4 triangles
+        # stoker les 4 triangles
+        liste_triangles[3 + (i//2)*nb_tri] = triangle3
 
-
-
+    """
     #le sol et plafond
     liste_all_x = [p[0] for p in array_coords] #liste des x
     liste_all_z = [p[2] for p in array_coords] #liste des z
@@ -129,22 +134,21 @@ def main():
         liste_triangles[1 + id_start] = triangle1
         liste_triangles[2 + id_start] = triangle2
         liste_triangles[3 + id_start] = triangle3 # stoker les 4 triangles
+        """
+    liste_triangles = np.array(
+        liste_triangles)  # mettre les triangles en np array
 
-    liste_triangles = np.array(liste_triangles) # mettre les triangles en np array
-
-    m = pymeshlab.Mesh(all_points, liste_triangles) # cree la mesh
-    ms = pymeshlab.MeshSet() # cree une meshliste pour contenir le mesh
-    ms.add_mesh(m, mesh_name = 'mesh1', set_as_current = True) # ajoute mesh a la liste
-
-
-
+    m = pymeshlab.Mesh(all_points, liste_triangles)  # cree la mesh
+    ms = pymeshlab.MeshSet()  # cree une meshliste pour contenir le mesh
+    # ajoute mesh a la liste
+    ms.add_mesh(m, mesh_name='mesh1', set_as_current=True)
 
     outname = "mesh_with_colorv2.obj"
     if len(sys.argv) > 2:
         outname = sys.argv[2]
 
-    outname = arrange_name(outname,".obj")
-    ms.save_current_mesh(outname) # enregistre
+    outname = arrange_name(outname, ".obj")
+    ms.save_current_mesh(outname)  # enregistre
 
 
 main()

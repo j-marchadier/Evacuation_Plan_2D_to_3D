@@ -59,7 +59,8 @@ public class Prefab_make
 
         filelist_walls = Directory.GetFiles(Application.dataPath + "/", "*_mur.txt");
         // on récupere tous les fichiers présents contenant des murs
-        if(filelist_walls.Length <= 0){
+        if (filelist_walls.Length <= 0)
+        {
             Debug.Log("No file to read ! Add files to Assets/");
             UnityEditor.EditorApplication.isPlaying = false;
         }
@@ -71,7 +72,7 @@ public class Prefab_make
         adjustFloorSize = 52;
         previousFloorSize = adjustFloorSize;
 
-        while(!ld.isFinished()) Debug.Log("Waiting for textures...");
+        while (!ld.isFinished()) Debug.Log("Waiting for textures...");
         // on attend que le dictionnaire des textures ait fini d'initialiser
 
         old_hide_value = hide_roof;
@@ -82,7 +83,8 @@ public class Prefab_make
 
     public void update_make()
     {
-        if(just_switched){
+        if (just_switched)
+        {
             createMesh();
             just_switched = false;
         }
@@ -91,41 +93,43 @@ public class Prefab_make
         bool makePrefab = false; // fait un prefab
 
         if (Input.GetKeyDown(KeyCode.Return)) makePrefab = true;
-        if(Input.GetKeyDown(KeyCode.RightArrow)) right_cycle = true;
-        if(Input.GetKeyDown(KeyCode.LeftArrow)) left_cycle = true;
+        if (Input.GetKeyDown(KeyCode.RightArrow)) right_cycle = true;
+        if (Input.GetKeyDown(KeyCode.LeftArrow)) left_cycle = true;
 
         if (Input.GetKeyDown(KeyCode.H)) hide_roof = !hide_roof; // hide roof button
 
-        if (Input.GetKey(KeyCode.A)) {
-            if (wallSize >= 1) wallSize-=0.1f;
+        if (Input.GetKey(KeyCode.A))
+        {
+            if (wallSize >= 1) wallSize -= 0.1f;
         }
-        else if (Input.GetKey(KeyCode.Z)) {
-            if (wallSize <= 100) wallSize+=0.1f;
+        else if (Input.GetKey(KeyCode.Z))
+        {
+            if (wallSize <= 100) wallSize += 0.1f;
         }
 
         if (Input.GetKey(KeyCode.Q))
         {
-            if (wallWidth >= 1) wallWidth-=0.1f;
+            if (wallWidth >= 1) wallWidth -= 0.1f;
         }
         else if (Input.GetKey(KeyCode.S))
         {
-            if (wallWidth <= 10) wallWidth+=0.1f;
+            if (wallWidth <= 10) wallWidth += 0.1f;
         }
 
         if (Input.GetKey(KeyCode.W))
         {
-            if (adjustFloorSize >= 0) adjustFloorSize-=0.1f;
+            if (adjustFloorSize >= 0) adjustFloorSize -= 0.1f;
         }
         else if (Input.GetKey(KeyCode.X))
         {
-            if (adjustFloorSize <= 60) adjustFloorSize+=0.1f;
+            if (adjustFloorSize <= 60) adjustFloorSize += 0.1f;
         }
 
         if (right_cycle)
         {
             right_cycle = false;
             nFile += 1;
-            if(nFile >= filelist_walls.Length)
+            if (nFile >= filelist_walls.Length)
             {
                 nFile = 0;
             }
@@ -135,20 +139,22 @@ public class Prefab_make
         {
             left_cycle = false;
             nFile -= 1;
-            if(nFile < 0)
+            if (nFile < 0)
             {
                 nFile = filelist_walls.Length - 1;
             }
             createMesh();
         }
-        if(makePrefab){
+        if (makePrefab)
+        {
             registerPrefab();
         }
 
         updateMesh();
     }
 
-    private void updateMesh(){
+    private void updateMesh()
+    {
         currentWallSize = wallSize;
         currentWallWidth = wallWidth;
         currentFloorSize = adjustFloorSize;
@@ -175,20 +181,23 @@ public class Prefab_make
             floor.transform.position = new Vector3(-rf.meanX, -wallSize / 2, rf.meanZ);
             floor.transform.localScale = new Vector3(rf.meanX * 2 - adjustFloorSize, 1, rf.meanZ * 2 - adjustFloorSize);
             // change la longueur du sol
-            if(old_hide_value != hide_roof){
-                if(hide_roof) floor.GetComponent<MeshRenderer>().enabled = false;
+            if (old_hide_value != hide_roof)
+            {
+                if (hide_roof) floor.GetComponent<MeshRenderer>().enabled = false;
                 else floor.GetComponent<MeshRenderer>().enabled = true;
             }
         }
 
         GameObject[] roofs = GameObject.FindGameObjectsWithTag("roof");
         // récupere les plafonds
-        foreach (GameObject roof in roofs){
+        foreach (GameObject roof in roofs)
+        {
             roof.transform.position = new Vector3(-rf.meanX, wallSize / 2, rf.meanZ);
             roof.transform.localScale = new Vector3(rf.meanX * 2 - adjustFloorSize, 1, rf.meanZ * 2 - adjustFloorSize);
             // change la longueur du plafond
-            if(old_hide_value != hide_roof){
-                if(hide_roof) roof.GetComponent<MeshRenderer>().enabled = false;
+            if (old_hide_value != hide_roof)
+            {
+                if (hide_roof) roof.GetComponent<MeshRenderer>().enabled = false;
                 else roof.GetComponent<MeshRenderer>().enabled = true;
             }
         }
@@ -202,9 +211,10 @@ public class Prefab_make
 
     }
 
-    private void createMesh(){
+    private void createMesh()
+    {
         // créé le mesh pour le fichier actuel
-        if(GameObject.Find("container") != null)
+        if (GameObject.Find("container") != null)
         {
             GameObject.DestroyImmediate(GameObject.Find("container"));
             // si il existe un objet "container", détruit le
@@ -221,16 +231,16 @@ public class Prefab_make
         fileTag = justname[0];
         // recupere le Tag de ce fichier
 
-        rf = new readfile(filename,"walls");
+        rf = new readfile(filename, "walls");
         rf.read();
         // lis le fichier actuel
 
         string[] filelist_logos = Directory.GetFiles(Application.dataPath + "/", fileTag + "_logo.txt");
-        if(filelist_logos.Length>0) logofile = filelist_logos[0]; // recupere le ficher d'objets
+        if (filelist_logos.Length > 0) logofile = filelist_logos[0]; // recupere le ficher d'objets
 
 
 
-        for (int i = 0; i < rf.myarray.Length; i+=4)
+        for (int i = 0; i < rf.myarray.Length; i += 4)
         {
             createCube(i);
             // créé autant de murs que nécessaire
@@ -255,58 +265,29 @@ public class Prefab_make
         // oriente le mur dans la bonne direction
     }
 
-    private void make_roof_floor(){
+    private void make_roof_floor()
+    {
         Debug.Log("dans make roof floor");
-        float distance = 120;
-        float maxX = rf.maxX;
-        float minX = rf.minX;
+        float maxX = -rf.minX;
+        float minX = -rf.maxX;
         float maxZ = rf.maxZ;
         float minZ = rf.minZ; // recup extremes
-        Debug.Log("max z = " + maxZ);
-        Debug.Log("min z = " + minZ);
 
-        List<GameObject> external_walls = new List<GameObject>(); // liste des murs exterieurs
+        GameObject rayMaker = new GameObject();
+        rayMaker.AddComponent<RayCaster>();
+        rayMaker.GetComponent<RayCaster>().setVal(minX, maxX, minZ, maxZ);
+        // set the values and start the recognition of external walls
 
-
-        RaycastHit hit;
-
-        Debug.Log("avant le 1");
-        for(float i = -maxX; i<-minX;i++){ // depuis le bas (vue du dessus, z est vers le nord)
-
-            Debug.DrawRay(new Vector3(i, 0, minZ - 100), Vector3.forward * distance, Color.red, 120);
-
+        while (!rayMaker.GetComponent<RayCaster>().OpIsDone())
+        {
+            Debug.Log("blocked here !!!");
+            Debug.Log(rayMaker.GetComponent<RayCaster>().OpIsDone());
+            ; // wait until the raycast is finished
         }
-        Debug.Log("1er passé");
 
-        for(float i = minZ; i<maxZ;i++){ // depuis la gauche
-            Vector3 pos = new Vector3(-maxX - 100, 0, i);
-
-            Debug.DrawRay(pos, Vector3.right * distance, Color.red, 120);
-
-        }
-        Debug.Log("2e passé");
-
-        for(float i = -minX; i>-maxX;i--){ // depuis le haut
-
-            Debug.DrawRay(new Vector3(i, 0, maxZ + 100), -Vector3.forward * distance, Color.red, 120);
+        GameObject.Destroy(rayMaker);
 
 
-        }
-        Debug.Log("3e passé");
-
-        for(float i = maxZ; i>minZ;i--){ // depuis la droite
-
-            Debug.DrawRay(new Vector3(-minX + 100, 0,i), -Vector3.right * distance, Color.red, 120);
-
-        }
-        Debug.Log("end of operations");
-
-        //GameObject.Destroy(bullet);
-
-        foreach(GameObject w in external_walls){
-            w.GetComponent<MeshRenderer>().enabled = false;
-            Debug.Log(w);
-        }
 
         /*
         GameObject cube_floor_center = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -340,22 +321,22 @@ public class Prefab_make
         Vector3 A = new Vector3(-rf.myarray[index], 0, rf.myarray[index + 1]);
         Vector3 B = new Vector3(-rf.myarray[index + 2], 0, rf.myarray[index + 3]);
         GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        cube.name = "wall_"+index;
+        cube.name = "wall_" + index;
         cube.gameObject.tag = "wall";
         cube.transform.parent = container.transform;
         cube.transform.position = A;
         SetTarget(cube, B);
-        LoadMaterial(cube,"wall");
+        LoadMaterial(cube, "wall");
     }
 
-    void LoadMaterial (GameObject obj, string mat)
+    void LoadMaterial(GameObject obj, string mat)
     {
         // donne une texture a un objet
         Material[] materials = obj.GetComponent<MeshRenderer>().materials;
 
-        if(materials.Length > 0 && ld.hasMat(mat))
+        if (materials.Length > 0 && ld.hasMat(mat))
         {
-            if(!ld.mat_is_null(mat))
+            if (!ld.mat_is_null(mat))
             {
                 materials[0] = ld.getMat(mat);
                 // récupere la texture correspondante au tag demandé
@@ -365,30 +346,35 @@ public class Prefab_make
         }
     }
 
-    void registerPrefab(){
+    void registerPrefab()
+    {
         string[] parts = filename.Split('/');
         string txtname = parts[parts.Length - 1];
         string prefabName = txtname.Split('.')[0];
         string pathname = "Assets/Resources/Prefab/prefab_" + prefabName + ".prefab";
         //créé un nom pour la préfab par rapport au nom du fichier correspondant
 
-        PrefabUtility.SaveAsPrefabAsset(GameObject.Find("container"),pathname);
+        PrefabUtility.SaveAsPrefabAsset(GameObject.Find("container"), pathname);
         // sauvegarde un préfab de l'objet actuel
     }
 
-    public void setSwitch(bool b){
+    public void setSwitch(bool b)
+    {
         this.just_switched = b;
     }
 
-    public void clear(){
+    public void clear()
+    {
         GameObject.Destroy(container);
     }
 
-    public float getMeanX(){
+    public float getMeanX()
+    {
         return rf.meanX;
     }
 
-    public float getMeanZ(){
+    public float getMeanZ()
+    {
         return rf.meanZ;
     }
 }
