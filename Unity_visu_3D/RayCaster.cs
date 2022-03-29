@@ -143,16 +143,31 @@ public class RayCaster : MonoBehaviour
                 hit.collider.gameObject.GetComponent<MeshRenderer>().material = (Material)Resources.Load("Materials/Red_ball", typeof(Material));
             }
 
-            switch (actual_axis) // si hit, on bouge jusqu'a la fin du mur, 1 sinon
+            switch (actual_axis)
+            // si hit, on bouge jusqu'a la fin du mur, 1 sinon
             {
                 case 'x':
                     switch (actual_direction)
                     {
                         case 1:
                             this.actual_pos = hit.collider.gameObject.GetComponent<MeshRenderer>().bounds.max.x + 1;
+
+                            //modif pour plafond
+                            GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                            cube.name = "roof";
+                            cube.gameObject.tag = "roof";
+                            cube.transform.position = startpoint;
+                            Vector3 target = startpoint;
+                            target.x = hit.collider.gameObject.GetComponent<MeshRenderer>().bounds.min.x - 1;
+                            Vector3 direction = target - cube.transform.position;
+                            cube.transform.localScale = new Vector3(20, 20, direction.magnitude + 0.5f);
+                            cube.transform.position = cube.transform.position + (direction / 2);
+                            cube.transform.LookAt(target);
+                            ///////
                             break;
                         case -1:
                             this.actual_pos = hit.collider.gameObject.GetComponent<MeshRenderer>().bounds.min.x - 1;
+
                             break;
                         default:
                             break;
@@ -163,6 +178,19 @@ public class RayCaster : MonoBehaviour
                     {
                         case 1:
                             this.actual_pos = hit.collider.gameObject.GetComponent<MeshRenderer>().bounds.max.z + 1;
+
+                            //modif pour plafond
+                            GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                            cube.name = "roof";
+                            cube.gameObject.tag = "roof";
+                            cube.transform.position = startpoint;
+                            Vector3 target = startpoint;
+                            target.z = hit.collider.gameObject.GetComponent<MeshRenderer>().bounds.min.z - 1;
+                            Vector3 direction = target - cube.transform.position;
+                            cube.transform.localScale = new Vector3(20, 20, direction.magnitude + 0.5f);
+                            cube.transform.position = cube.transform.position + (direction / 2);
+                            cube.transform.LookAt(target);
+                            ///////
                             break;
                         case -1:
                             this.actual_pos = hit.collider.gameObject.GetComponent<MeshRenderer>().bounds.min.z - 1;
