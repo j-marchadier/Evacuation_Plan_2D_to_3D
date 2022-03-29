@@ -69,7 +69,7 @@ public class Prefab_make
             UnityEditor.EditorApplication.isPlaying = false;
         }
 
-        wallSize = 10;
+        wallSize = 20;
         previousWallSize = wallSize;
         wallWidth = 6.35f;
         previousWallWidth = wallWidth;

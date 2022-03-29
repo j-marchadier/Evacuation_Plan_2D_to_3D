@@ -31,5 +31,7 @@ public class CameraLookAt : MonoBehaviour
 
         transform.Rotate(-inputY * Vector3.right * speedY, Space.Self);
         transform.Rotate(inputX * Vector3.up * speedX, Space.World);
+
+        _camera.transform.LookAt(transform.position);
     }
 }
