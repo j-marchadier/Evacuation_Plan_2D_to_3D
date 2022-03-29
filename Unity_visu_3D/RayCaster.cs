@@ -24,6 +24,8 @@ public class RayCaster : MonoBehaviour
 
     public GameObject actual_wall;
 
+    Dictionary<GameObject, int> Wall_to_axis;
+
 
 
 
@@ -39,6 +41,8 @@ public class RayCaster : MonoBehaviour
         this.actual_axis = 'x';
         this.actual_direction = -1;
         this.actual_wall = null;
+
+        this.Wall_to_axis = new Dictionary<GameObject, int>();
     }
 
     public void start_operation()
@@ -141,6 +145,9 @@ public class RayCaster : MonoBehaviour
             {
                 this.external_walls.Add(hit.collider.gameObject); // ajoute objet touché
                 hit.collider.gameObject.GetComponent<MeshRenderer>().material = (Material)Resources.Load("Materials/Red_ball", typeof(Material));
+
+                Wall_to_axis[hit.collider.gameObject] = this.actual_direction; /////////
+                /// ////////
             }
 
             switch (actual_axis)
@@ -156,6 +163,7 @@ public class RayCaster : MonoBehaviour
                             GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
                             cube.name = "roof";
                             cube.gameObject.tag = "roof";
+
                             cube.transform.position = startpoint;
                             Vector3 target = startpoint;
                             target.x = hit.collider.gameObject.GetComponent<MeshRenderer>().bounds.min.x - 1;
@@ -163,7 +171,7 @@ public class RayCaster : MonoBehaviour
                             cube.transform.localScale = new Vector3(20, 20, direction.magnitude + 0.5f);
                             cube.transform.position = cube.transform.position + (direction / 2);
                             cube.transform.LookAt(target);
-                            ///////
+
                             break;
                         case -1:
                             this.actual_pos = hit.collider.gameObject.GetComponent<MeshRenderer>().bounds.min.x - 1;
@@ -190,7 +198,7 @@ public class RayCaster : MonoBehaviour
                             cube.transform.localScale = new Vector3(20, 20, direction.magnitude + 0.5f);
                             cube.transform.position = cube.transform.position + (direction / 2);
                             cube.transform.LookAt(target);
-                            ///////
+
                             break;
                         case -1:
                             this.actual_pos = hit.collider.gameObject.GetComponent<MeshRenderer>().bounds.min.z - 1;
