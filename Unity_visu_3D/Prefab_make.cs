@@ -35,17 +35,22 @@ public class Prefab_make
     public Loader ld;
     // fait toutes les initialisations dont on a besoin
     string[] filelist_walls;
-    // liste des fichiers lisibles
-    string filename;
-    // nom fichier actuel
+    // liste des fichiers lisibles de murs
+    string wall_file;
+    // nom fichier actuel de murs
 
     char fileTag;
     // le tag du fichier (0, 1, 2, ...)
 
-    string item_file;
-
     int nFile;
     // numéro fichier actuel dans la liste
+
+    string item_file;
+    // fichier d'items correspondant au fichier actuel de murs
+
+    string door_file;
+    // fichier actuel de portes et fenetres correspondant
+
 
     bool just_switched;
 
@@ -240,20 +245,23 @@ public class Prefab_make
         container.gameObject.tag = "prefab";
         // créé un conteneur pour nos murs et plafonds et tout
 
-        filename = filelist_walls[nFile];
+        wall_file = filelist_walls[nFile];
         // nom du fichier
 
-        string cutname = filename.Split()[filename.Split().Length - 1];
+        string cutname = wall_file.Split()[wall_file.Split().Length - 1];
         string justname = cutname.Split()[0];
         fileTag = justname[0];
         // recupere le Tag de ce fichier
 
-        rf = new readfile(filename, "walls");
+        rf = new readfile(wall_file, "walls");
         rf.read();
-        // lis le fichier actuel
+        // lis le fichier des murs actuel
 
-        string[] filelist_logos = Directory.GetFiles(Application.dataPath + "/", fileTag + "_item.txt");
+        string[] filelist_logos = Directory.GetFiles(Application.dataPath + "/", fileTag + "_items.txt");
         if (filelist_logos.Length > 0) item_file = filelist_logos[0]; // recupere le ficher d'objets
+
+        string[] filelist_doors = Directory.GetFiles(Application.dataPath + "/", fileTag + "_doors.txt");
+        if (filelist_doors.Length > 0) door_file = filelist_doors[0]; // recupere le ficher des portes/fenetres
 
 
 
@@ -268,7 +276,6 @@ public class Prefab_make
         previousFloorSize = adjustFloorSize;
         // update les valeurs précédentes de taille et épaisseur des murs et plafond/sol
 
-        Debug.Log("avant make roof floor");
         make_roof_floor();
 
     }
@@ -282,7 +289,7 @@ public class Prefab_make
         // oriente le mur dans la bonne direction
     }
 
-    private void make_roof_floor()
+    private void make_roof_floor() // cree mur et plafond
     {
         Debug.Log("dans make roof floor");
         float maxX = -rf.minX;
@@ -293,30 +300,6 @@ public class Prefab_make
         this.rayMaker.GetComponent<RayCaster>().setVal(minX, maxX, minZ, maxZ);
         // set the values and start the recognition of external walls
 
-
-        /*
-        GameObject cube_floor_center = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        cube_floor_center.gameObject.tag = "floor";
-        cube_floor_center.transform.parent = container.transform;
-        if (hide_roof)
-        {
-            cube_floor_center.GetComponent<MeshRenderer>().enabled = false;
-        }
-        // créé le sol et met le dans le conteneur
-
-        GameObject cube_roof_center = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        cube_roof_center.gameObject.tag = "roof";
-        cube_roof_center.transform.parent = container.transform;
-        if (hide_roof)
-        {
-            cube_roof_center.GetComponent<MeshRenderer>().enabled = false;
-        }
-        // créé le plafond et met le dans le conteneur
-
-        LoadMaterial(cube_floor_center,"floor");
-        LoadMaterial(cube_roof_center,"roof");
-        // donne une texture au sol et au plafond
-        */
     }
 
 
@@ -353,7 +336,7 @@ public class Prefab_make
 
     void registerPrefab()
     {
-        string[] parts = filename.Split('/');
+        string[] parts = wall_file.Split('/');
         string txtname = parts[parts.Length - 1];
         string prefabName = txtname.Split('.')[0];
         string pathname = "Assets/Resources/Prefab/prefab_" + prefabName + ".prefab";

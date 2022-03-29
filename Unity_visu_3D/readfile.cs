@@ -23,21 +23,32 @@ public class readfile
 
     string filetype;
 
-    public readfile(string filename, string tag){
+    public readfile(string filename, string tag)
+    {
         this.filename = filename;
         this.filetype = tag;
     }
     public void read()
     {
-        if(this.filetype == "walls")
+        if (this.filetype == "walls")
         {
-            ReadString();
+            Read_walls();
             meanX = (minX + maxX) / 2;
             meanZ = (minZ + maxZ) / 2;
         }
+
+        else if (this.filetype == "items")
+        {
+            Read_items();
+        }
+
+        else if (this.filetype == "doors")
+        {
+            Read_doors();
+        }
     }
 
-    void ReadString()
+    void Read_walls()
     {
         //Read the text from directly from the test.txt file
         StreamReader reader = new StreamReader(filename);
@@ -52,16 +63,16 @@ public class readfile
         int index = 0;
 
         // découpe le texte en lignes
-        foreach(var line in lines)
+        foreach (var line in lines)
         {
             // découpe les lignes en 4 nombres chacune
             var temps = line.Split(';');
 
-            foreach(var temp in temps)
+            foreach (var temp in temps)
             {
                 // ajoute chaque nombre dans l'array des valeurs
                 myarray[index] = float.Parse(temp);
-                if(index%2 == 0)
+                if (index % 2 == 0)
                 {
                     // array des valeurs x
                     myarrayX[(int)(index / 2)] = float.Parse(temp);
@@ -83,8 +94,13 @@ public class readfile
         minZ = myarrayZ.Min();
     }
 
-    void ReadPrefab()
+    void Read_items()
     {
+        ;
+    }
 
+    void Read_doors()
+    {
+        ;
     }
 }
