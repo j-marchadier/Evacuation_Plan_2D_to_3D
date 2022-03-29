@@ -267,7 +267,7 @@ public class Prefab_make
 
         for (int i = 0; i < rf.myarray.Length; i += 4)
         {
-            createCube(i);
+            createWall(i);
             // créé autant de murs que nécessaire
         }
 
@@ -303,7 +303,7 @@ public class Prefab_make
     }
 
 
-    void createCube(int index)
+    void createWall(int index)
     {
         // créé un mur et donne lui une texture.
         Vector3 A = new Vector3(-rf.myarray[index], 0, rf.myarray[index + 1]);
@@ -315,6 +315,16 @@ public class Prefab_make
         cube.transform.position = A;
         SetTarget(cube, B);
         LoadMaterial(cube, "wall");
+    }
+
+    void placeDoor(float x, float y)
+    {
+        ;
+    }
+
+    void placeWindow(float x, float y)
+    {
+        ;
     }
 
     void LoadMaterial(GameObject obj, string mat)
