@@ -42,7 +42,7 @@ public class Prefab_make
     char fileTag;
     // le tag du fichier (0, 1, 2, ...)
 
-    string logofile;
+    string item_file;
 
     int nFile;
     // numéro fichier actuel dans la liste
@@ -69,7 +69,7 @@ public class Prefab_make
             UnityEditor.EditorApplication.isPlaying = false;
         }
 
-        wallSize = 100;
+        wallSize = 10;
         previousWallSize = wallSize;
         wallWidth = 6.35f;
         previousWallWidth = wallWidth;
@@ -252,8 +252,8 @@ public class Prefab_make
         rf.read();
         // lis le fichier actuel
 
-        string[] filelist_logos = Directory.GetFiles(Application.dataPath + "/", fileTag + "_logo.txt");
-        if (filelist_logos.Length > 0) logofile = filelist_logos[0]; // recupere le ficher d'objets
+        string[] filelist_logos = Directory.GetFiles(Application.dataPath + "/", fileTag + "_item.txt");
+        if (filelist_logos.Length > 0) item_file = filelist_logos[0]; // recupere le ficher d'objets
 
 
 
