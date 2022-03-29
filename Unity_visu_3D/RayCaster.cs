@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Globalization;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,16 +14,31 @@ public class RayCaster : MonoBehaviour
     private bool gettingWalls = false;
     private bool opDone = false;
 
-    private List<GameObject> external_walls;
+    public List<GameObject> external_walls;
     public bool wall_list_loaded = false;
+
+    public float actual_pos;
+    public float actual_limit;
+    public char actual_axis;
+    public int actual_direction;
+
+    public GameObject actual_wall;
+
+
+
 
 
 
     // Start is called before the first frame update
     void Start()
     {
-        List<GameObject> external_walls = new List<GameObject>();
+        this.external_walls = new List<GameObject>();
         this.wall_list_loaded = true;
+        this.actual_pos = maxX;
+        this.actual_limit = maxZ;
+        this.actual_axis = 'x';
+        this.actual_direction = -1;
+        this.actual_wall = null;
     }
 
     public void start_operation()
@@ -61,115 +77,180 @@ public class RayCaster : MonoBehaviour
         this.start_operation();
     }
 
-    void Update()
+    void FixedUpdate()
     {
-        if (this.gettingWalls && this.wall_list_loaded) this.get_external_walls();
-        // si on est entrain de chercher les murs exterieurs
+        if (this.gettingWalls && this.wall_list_loaded) // si on est entrain de chercher les murs exterieurs
+        {
+            this.get_external_walls();
+        }
+
     }
 
-    private void get_external_walls()
+    private void get_external_walls() // l'axe, la position, la limit de distance, et la direction
     {
         Debug.Log("dans get external walls");
         float distance = 120;
-        float ecart = 100;
+        float ecart = 10;
         float duration = 300;
 
-        this.external_walls = new List<GameObject>(); // liste des murs exterieurs
+        Vector3 startpoint = new Vector3(); // point de départ
+        Vector3 vect_direction = new Vector3(); // direction
+
+        switch (actual_axis)
+        {
+            case 'x':
+                if (actual_direction < 0)
+                {
+                    startpoint = new Vector3(actual_pos, 0, this.minZ - ecart); // starting point on the line
+                    vect_direction = Vector3.forward;    // direction
+                }
+                else
+                {
+                    startpoint = new Vector3(actual_pos, 0, this.maxZ + ecart); // starting point on the line
+                    vect_direction = -Vector3.forward;    // direction
+                }
+                break;
+            case 'z':
+                if (actual_direction > 0)
+                {
+                    startpoint = new Vector3(minX - ecart, 0, actual_pos); // starting point on the line
+                    vect_direction = Vector3.right;    // direction
+                }
+                else
+                {
+                    startpoint = new Vector3(maxX + ecart, 0, actual_pos); // starting point on the line
+                    vect_direction = -Vector3.right;    // direction
+                }
+                break;
+            default:
+                break;
+        }
+
 
         RaycastHit hit;
+        Ray ray = new Ray(startpoint, vect_direction);
+        int layer_mask = LayerMask.GetMask("Default");
 
-        Debug.Log("avant le 1");
-        for (float i = maxX; i > minX; i--)
-        { // depuis le bas (vue du dessus, z est vers le nord)
-            Vector3 startpoint = new Vector3(i, 0, minZ - ecart); // point de départ
-            Vector3 direction = Vector3.forward;    // direction
+        Debug.DrawRay(startpoint, vect_direction * distance, Color.red, duration);
 
-            Debug.DrawRay(startpoint, direction * distance, Color.red, duration); // debug
-
-            if (Physics.Raycast(startpoint, direction, out hit, maxZ + ecart))
-            {
-
-                if (!this.external_walls.Contains(hit.collider.gameObject))
-                {
-                    this.external_walls.Add(hit.collider.gameObject); // ajoute objet touché
-                    Debug.Log("Hit");
-                }
-            }
-        }
-
-        Debug.Log("apres le 1");
-
-        Debug.Log("avant le 2");
-        for (float i = minZ; i < maxZ; i++)
-        { // depuis le bas (vue du dessus, z est vers le nord)
-            Vector3 startpoint = new Vector3(minX - ecart, 0, i); // point de départ
-            Vector3 direction = Vector3.right;    // direction
-
-            Debug.DrawRay(startpoint, direction * distance, Color.green, duration); // debug
-
-            if (Physics.Raycast(startpoint, direction, out hit, maxX + ecart))
-            {
-
-                if (!this.external_walls.Contains(hit.collider.gameObject))
-                {
-                    this.external_walls.Add(hit.collider.gameObject); // ajoute objet touché
-                    Debug.Log("Hit");
-                }
-            }
-
-        }
-        Debug.Log("apres le 2");
-
-        Debug.Log("avant le 3");
-        for (float i = minX; i < maxX; i++)
-        { // depuis le bas (vue du dessus, z est vers le nord)
-            Vector3 startpoint = new Vector3(i, 0, maxZ + ecart); // point de départ
-            Vector3 direction = -Vector3.forward;    // direction
-
-            Debug.DrawRay(startpoint, direction * distance, Color.blue, duration); // debug
-
-            if (Physics.Raycast(startpoint, direction, out hit, minZ - ecart))
-            {
-
-                if (!this.external_walls.Contains(hit.collider.gameObject))
-                {
-                    this.external_walls.Add(hit.collider.gameObject); // ajoute objet touché
-                    Debug.Log("Hit");
-                }
-            }
-
-        }
-        Debug.Log("apres le 3");
-
-        Debug.Log("avant le 4");
-        for (float i = maxZ; i > minZ; i--)
-        { // depuis le bas (vue du dessus, z est vers le nord)
-            Vector3 startpoint = new Vector3(maxX + ecart, 0, i); // point de départ
-            Vector3 direction = -Vector3.right;    // direction
-
-            Debug.DrawRay(startpoint, direction * distance, Color.yellow, duration); // debug
-
-            if (Physics.Raycast(startpoint, direction, out hit, minX - ecart))
-            {
-
-                if (!this.external_walls.Contains(hit.collider.gameObject))
-                {
-                    this.external_walls.Add(hit.collider.gameObject); // ajoute objet touché
-                    Debug.Log("Hit");
-                }
-            }
-
-        }
-        Debug.Log("apres le 4");
-
-        Debug.Log("end of operations");
-
-        foreach (GameObject w in this.external_walls)
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity, layer_mask))
         {
-            w.GetComponent<MeshRenderer>().enabled = false;
-            Debug.Log(w);
+            Debug.Log("Hit!");
+            Debug.Log(hit.collider.gameObject.tag);
+            if (!this.external_walls.Contains(hit.collider.gameObject))
+            {
+                this.external_walls.Add(hit.collider.gameObject); // ajoute objet touché
+                hit.collider.gameObject.GetComponent<MeshRenderer>().material = (Material)Resources.Load("Materials/Red_ball", typeof(Material));
+            }
+
+            switch (actual_axis) // si hit, on bouge jusqu'a la fin du mur, 1 sinon
+            {
+                case 'x':
+                    switch (actual_direction)
+                    {
+                        case 1:
+                            this.actual_pos = hit.collider.gameObject.GetComponent<MeshRenderer>().bounds.max.x + 1;
+                            break;
+                        case -1:
+                            this.actual_pos = hit.collider.gameObject.GetComponent<MeshRenderer>().bounds.min.x - 1;
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                case 'z':
+                    switch (actual_direction)
+                    {
+                        case 1:
+                            this.actual_pos = hit.collider.gameObject.GetComponent<MeshRenderer>().bounds.max.z + 1;
+                            break;
+                        case -1:
+                            this.actual_pos = hit.collider.gameObject.GetComponent<MeshRenderer>().bounds.min.z - 1;
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+
+        }
+        else
+        {
+            Debug.Log("Pas de hit !");
+            this.actual_pos += this.actual_direction;
+
         }
 
-        this.stop_operation(); // no more getting walls
+
+        switch (actual_direction) // les changements de coté
+        {
+            case 1:
+                switch (this.actual_axis)
+                {
+                    case 'x': // en haut vers la droite
+                        if (this.actual_pos > this.maxX)
+                        {
+                            Debug.Log("switch actual_axis !");
+                            this.actual_pos = this.maxZ;
+                            this.actual_axis = 'z';
+                            this.actual_direction = -1;
+                            this.actual_limit = this.minX;
+
+                        }
+                        break;
+                    case 'z': // a gauche vers le haut
+                        if (this.actual_pos > this.maxZ)
+                        {
+                            Debug.Log("switch actual_axis !");
+                            this.actual_pos = this.minX;
+                            this.actual_axis = 'x';
+                            this.actual_direction = 1;
+                            this.actual_limit = this.minZ;
+
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case -1:
+                switch (this.actual_axis)
+                {
+                    case 'x': // en bas vers la gauche
+                        if (this.actual_pos < this.minX)
+                        {
+                            Debug.Log("switch actual_axis !");
+                            this.actual_pos = this.minZ;
+                            this.actual_axis = 'z';
+                            this.actual_direction = 1;
+                            this.actual_limit = this.maxX;
+                        }
+                        break;
+                    case 'z': // a droite vers le bas
+                        if (this.actual_pos < this.minZ)
+                        {
+                            Debug.Log("switch actual_axis !");
+                            Debug.Log("Operation finished !!!");
+
+                            this.stop_operation(); // no more getting walls
+
+                            foreach (GameObject w in this.external_walls)
+                            {
+                                Debug.Log(w);
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            default:
+                break;
+        }
+
+
     }
 }

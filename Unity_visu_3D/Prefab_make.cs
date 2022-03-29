@@ -81,9 +81,6 @@ public class Prefab_make
 
         old_hide_value = hide_roof;
 
-        this.rayMaker = new GameObject();
-        this.rayMaker.AddComponent<RayCaster>();
-
         just_switched = true;
         mesh_made = false;
         // on met le switch pour creer la premiere mesh
@@ -93,13 +90,15 @@ public class Prefab_make
     {
         if (just_switched)
         {
+            this.rayMaker = new GameObject();
+            this.rayMaker.AddComponent<RayCaster>();
             createMesh();
-            mesh_made = true;
             just_switched = false;
         }
-        if (!mesh_made && this.rayMaker.GetComponent<RayCaster>().OpIsDone())
+        if (!mesh_made && this.rayMaker.GetComponent<RayCaster>().OpIsDone()) // si operation murs exterierus finie
         {
             mesh_made = true;
+            GameObject.Destroy(this.rayMaker); // detrui le raymaker
         }
         else if (mesh_made)
         {
@@ -149,7 +148,7 @@ public class Prefab_make
                     nFile = 0;
                 }
                 mesh_made = false;
-                createMesh();
+                just_switched = true;
             }
             if (left_cycle)
             {
@@ -160,7 +159,7 @@ public class Prefab_make
                     nFile = filelist_walls.Length - 1;
                 }
                 mesh_made = false;
-                createMesh();
+                just_switched = true;
             }
             if (makePrefab)
             {
