@@ -1,17 +1,19 @@
 import detectPlanLegend
 import Interface
-import CreateXML
 
-pathfile = Interface.SelectImage()
-print(pathfile)
+#pathfile = Interface.SelectImage()
+#print(pathfile)
 
 # Etape 1 => Detect plan and legend
-detected = detectPlanLegend.detectPlanLegend(pathfile)
+#detected = detectPlanLegend.detectPlanLegend(pathfile)
+detected = detectPlanLegend.detectPlanLegend("data/plans/esiee.jpg")
 
 # Return a legend.jpg with only the legend
 #detected.findLegendAndPlan()
 
-detected.findLogos()
+#detected.findLogos()
+
+detected.DetectLogo()
 
 
 

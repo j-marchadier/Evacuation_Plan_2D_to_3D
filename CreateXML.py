@@ -119,7 +119,10 @@ def readLogosXML(pathfile):
     xmldoc = ET.parse(pathfile.split(".")[0]+".xml")
     itemlist = xmldoc.getroot()
     coord_logo=[]
-    for c in itemlist[6:]:
-        coord_logo.append(c[4].text)
+    for object in itemlist[6:]:
+        c=[]
+        for child in object[4]:
+            c.append((int(child.text)))
+        coord_logo.append(c)
 
     return coord_logo

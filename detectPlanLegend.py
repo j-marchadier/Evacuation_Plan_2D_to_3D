@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import CreateXML
 import Interface
+import glob
 
 
 # Detection du plan et de la legend
@@ -144,6 +145,77 @@ class detectPlanLegend:
         # Start Inteface to change an perform Plan and legend
         Interface.OpenLabelImg(filepath)
         coord_logos = CreateXML.readLogosXML(filepath)
-        print(coord_logos)
+
+        for l,i in zip(coord_logos,range(len(coord_logos))):
+            cv2.imwrite('data/logos/logo_'+str(i)+'.jpg', legend[l[1]:l[3],l[0]:l[2]])
 
         return
+
+    # Clean logos variations
+    def clear_coord_logos(self,coord):
+        coord_traiten = []
+        for type in coord:
+            weight = []
+            for c in range(len(type) - 1):
+                weightInter = 0
+                for i in range(4):
+                    weightInter = weightInter + int(abs(type[c][i] - type[c + 1][i]))
+                weight.append(weightInter)
+
+            if len(weight) > 0:
+                weight.append(0)
+                weight = np.array(weight)
+                type2 = np.array(type)
+                coord_traiten.append(type2[weight > 6].tolist())
+
+        return coord_traiten
+
+    def DetectLogo(self):
+        img_rgb = cv2.imread("data/plans/plan.jpg")
+        img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
+        coord_global = []
+
+        allFiles = glob.glob("data/logos/logo_*.jpg")
+        n = len(allFiles)
+        print("########## Start process  ###########")
+        i = 1
+        for file in allFiles:
+            template = cv2.imread(file, 0)
+            template = cv2.resize(template, (35, 35))
+
+            w, h = template.shape[::-1]
+            coord = []
+
+            # loop over the scales of the image
+            for scale in np.linspace(0.5, 3, 100)[::-1]:
+                coord2 = []
+                x = int(w * scale)
+                y = int(h * scale)
+                tpl = cv2.resize(template, (x, y), interpolation=cv2.INTER_AREA)
+
+                res = cv2.matchTemplate(img_gray, tpl, cv2.TM_CCOEFF_NORMED)
+                threshold = 0.7
+                loc = np.where(res >= threshold)
+                for pt in zip(*loc[::-1]):
+                    # print(pt)
+                    coord2.append((pt[0], pt[1], pt[0] + x, pt[1] + y))
+
+                if len(coord) < len(coord2):  # selection le plus grand nombre de reperage
+                    coord = coord2
+
+            print(i, "/", n, " : ", len(coord), " logo(s) find")
+            i = i + 1
+
+            coord_global.append(coord)
+
+            print("End process ")
+
+        coord_global = self.clear_coord_logos(coord_global)
+        with open('data/logos.txt', 'w') as f:
+            for i in coord_global:
+                for c in i:
+                    f.write("{}\n".format(c))
+                    cv2.rectangle(img_rgb, (int(c[0]), int(c[1])), (int(c[2]), int(c[3])), (255, 255, 255), -1)
+
+        cv2.imwrite('data/resultat_detection_logo.png', img_rgb)
+        return img_rgb
