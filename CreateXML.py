@@ -1,6 +1,7 @@
 from xml.dom import minidom
 import os
 from pathlib import Path
+import xml.etree.ElementTree as ET
 
 def createXML(paths,sizeInput,objectInput):
     pathAbs = str(Path(__file__).parent.absolute())
@@ -78,10 +79,11 @@ def createXML(paths,sizeInput,objectInput):
         # BNDBOX
         bndbox = root.createElement('bndbox')
 
-        coord = ("xmin","ymin","xmax","ymax")
+        coordName = ("xmin","ymin","xmax","ymax")
+        coord =(obj[0],obj[1],obj[0]+obj[2],obj[1]+obj[3])
         for i in range(4):
-            a = root.createElement(coord[i])
-            a.appendChild(root.createTextNode(str(obj[i])))
+            a = root.createElement(coordName[i])
+            a.appendChild(root.createTextNode(str(coord[i])))
             bndbox.appendChild(a)
 
         object.appendChild(bndbox)
@@ -93,6 +95,31 @@ def createXML(paths,sizeInput,objectInput):
     xml_str = root.toprettyxml(indent ="\t")
 
 
-    save_path_file = str(pathAbs) +"/"+ paths.split("/")[0]+"/"+paths.split("/")[1]+"/"+paths.split("/")[-1].split(".")[0]+".xml"
+    save_path_file = paths.split(".")[0]+".xml"
     with open(save_path_file, "w") as f:
         f.write(xml_str)
+
+
+def readXML(pathfile):
+    xmldoc = ET.parse(pathfile.split(".")[0]+".xml")
+    itemlist = xmldoc.getroot()
+    coord_legend=[]
+    coord_plan =[]
+    for c in itemlist[6:]:
+        if c[0].text == "legend":
+            for child in c[4]:
+                coord_legend.append(int(child.text)) # xmin,ymin,xmax,ymax
+        if c[0].text == "plan":
+            for child in c[4]:
+                coord_plan.append(int(child.text)) # xmin,ymin,xmax,ymax
+
+    return coord_plan,coord_legend
+
+def readLogosXML(pathfile):
+    xmldoc = ET.parse(pathfile.split(".")[0]+".xml")
+    itemlist = xmldoc.getroot()
+    coord_logo=[]
+    for c in itemlist[6:]:
+        coord_logo.append(c[4].text)
+
+    return coord_logo

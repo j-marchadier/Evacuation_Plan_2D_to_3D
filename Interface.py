@@ -7,7 +7,7 @@ import cv2
 import numpy as np
 
 def SelectImage():
-    img_path = filedialog.askopenfilename(initialdir=os.getcwd()) 
+    img_path = filedialog.askopenfilename(initialdir=os.getcwd())
     return img_path
 
 def DetectPlan():
@@ -34,7 +34,7 @@ def LSD():
     return
 
 def OpenLabelImg(path):
-    system("python .\labelImgmaster\labelImg.py "+'"'+path+'"')
+    system("python ./labelImgmaster/labelImg.py "+'"'+path+'"')
     
 if __name__ == "__main__":
     path = SelectImage()
