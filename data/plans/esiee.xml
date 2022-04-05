@@ -1,0 +1,39 @@
+<?xml version="1.0" ?>
+<annotation>
+	<folder>plans</folder>
+	<filename>esiee</filename>
+	<path>/Users/julienmarchadier/Desktop/Boulot/E4/Evacuation_Plan_2D_to_3D/data/plans/esiee.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>1080</width>
+		<height>1920</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>legend</name>
+		<pose>Unspectified</pose>
+		<pose>0</pose>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>168</xmin>
+			<ymin>927</ymin>
+			<xmax>244</xmax>
+			<ymax>131</ymax>
+		</bndbox>
+	</object>
+	<object>
+		<name>legend</name>
+		<pose>Unspectified</pose>
+		<pose>0</pose>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>344</xmin>
+			<ymin>447</ymin>
+			<xmax>1391</xmax>
+			<ymax>584</ymax>
+		</bndbox>
+	</object>
+</annotation>

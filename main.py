@@ -1,7 +1,15 @@
 import detectPlanLegend
-impo
 
-# Etape 1 => Detecter le plan
-plan = detectPlanLegend.detectPlanLegend("data/plans/esiee.jpg")
-plan.findPlan()
+# Etape 1 => Detect plan and legend
+detected = detectPlanLegend.detectPlanLegend("data/plans/plan-evacuation.jpg")
+
+# Return a plan.jpg with only the plan
+detected.findPlan()
+
+# Return a legend.jpg with only the legend
+detected.findLegend()
+
+
+
+
 
