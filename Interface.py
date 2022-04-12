@@ -15,7 +15,8 @@ def OpenLabelImg(path):
 
 def startApplication():
     if platform == "linux" or platform == "linux2" or platform == "darwin":
-        system("./wallMake_build/content/")
+        system("chmod 777 wallmake_build.app/Contents/MacOS/wallmake")
+        system("./wallmake_build.app/Contents/MacOS/wallmake")
     elif platform == "win32":
         system(".\wallMake_build\content")
 
