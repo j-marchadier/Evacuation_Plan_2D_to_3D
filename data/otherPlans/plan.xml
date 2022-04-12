@@ -1,38 +1,39 @@
+<?xml version="1.0" ?>
 <annotation>
 	<folder>otherPlans</folder>
-	<filename>plan.jpg</filename>
-	<path>/Users/julienmarchadier/Desktop/Boulot/E4/Evacuation_Plan_2D_to_3D/data/otherPlans/plan.jpg</path>
+	<filename>plan</filename>
+	<path>/Users/julienmarchadier/Desktop/Boulot/E4/Evacuation_Plan_2D_to_3D//Users/julienmarchadier/Desktop/Boulot/E4/Evacuation_Plan_2D_to_3D/data/otherPlans/plan.jpg</path>
 	<source>
 		<database>Unknown</database>
 	</source>
 	<size>
-		<width>1920</width>
-		<height>1357</height>
+		<width>786</width>
+		<height>812</height>
 		<depth>3</depth>
 	</size>
 	<segmented>0</segmented>
 	<object>
-		<name>plan</name>
-		<pose>Unspecified</pose>
-		<truncated>0</truncated>
+		<name>legend</name>
+		<pose>Unspectified</pose>
+		<pose>0</pose>
 		<difficult>0</difficult>
 		<bndbox>
-			<xmin>885</xmin>
-			<ymin>395</ymin>
-			<xmax>1703</xmax>
-			<ymax>1183</ymax>
+			<xmin>0</xmin>
+			<ymin>452</ymin>
+			<xmax>812</xmax>
+			<ymax>786</ymax>
 		</bndbox>
 	</object>
 	<object>
 		<name>legend</name>
-		<pose>Unspecified</pose>
-		<truncated>0</truncated>
+		<pose>Unspectified</pose>
+		<pose>0</pose>
 		<difficult>0</difficult>
 		<bndbox>
-			<xmin>35</xmin>
-			<ymin>846</ymin>
-			<xmax>451</xmax>
-			<ymax>1206</ymax>
+			<xmin>0</xmin>
+			<ymin>1</ymin>
+			<xmax>316</xmax>
+			<ymax>600</ymax>
 		</bndbox>
 	</object>
 </annotation>

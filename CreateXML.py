@@ -2,6 +2,7 @@ from xml.dom import minidom
 import os
 from pathlib import Path
 import xml.etree.ElementTree as ET
+import random
 
 def createXML(paths,sizeInput,objectInput):
     pathAbs = str(Path(__file__).parent.absolute())
@@ -58,7 +59,7 @@ def createXML(paths,sizeInput,objectInput):
 
         # NAME
         name = root.createElement('name')
-        name.appendChild(root.createTextNode('legend'))
+        name.appendChild(root.createTextNode(random.choice(["legend","plan"])))
         object.appendChild(name)
 
         # POSE

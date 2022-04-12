@@ -3,6 +3,7 @@ import numpy as np
 import CreateXML
 import Interface
 import glob
+from os import system
 
 
 # Detection du plan et de la legend
@@ -16,15 +17,6 @@ class detectPlanLegend:
 
         # Image precessed
         self.precessedImg = 0
-
-    def printImg(self):
-        cv2.imwrite('data/plans/image.jpg', self.img)
-
-    def printImgProcess(self):
-        cv2.imwrite('data/plans/imageProcess.jpg', self.imageProcess())
-
-    def getImgProcess(self):
-        return self.imageProcess()
 
     def imageProcess(self, img=None,threshLvl=30):
         if img is None: img = self.img
@@ -55,85 +47,57 @@ class detectPlanLegend:
         contours, _ = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         return contours
 
-    def findLegendAndPlan(self, contours=None,id=5):
+    def findLegendAndPlan(self, contours=None,id=1.5):
         if contours is None: contours = self.lookForContours()
 
         legend = self.img
         coord_legend = []
-        size_legend = []
 
         for contour in contours:
-            area = cv2.contourArea(contour)
-            if area > self.img.shape[0] * id + self.img.shape[1] * id:
-                # get rectangle bounding contour
-                [x, y, w, h] = cv2.boundingRect(contour)
-                size_legend.append((x + w) * 2 + (y + h) * 2)
+            # get rectangle bounding contour
+            [x, y, w, h] = cv2.boundingRect(contour)
+
+            if w+h > (self.img.shape[0] + self.img.shape[1])/id:
                 #cv2.rectangle(legend, (x, y), (x + w, y + h), (255, 0, 255), 3)
                 coord_legend.append([x, y, w, h])
 
         if len(coord_legend)<2:
             print("NO LEGEND FIND, RETRY ...")
-            self.findLegendAndPlan(contours, id=id-0.5)
+            self.findLegendAndPlan(contours, id=id+0.5)
 
-        ### Create a XLM file for all possible legend
-        CreateXML.createXML(self.path, self.img.shape, coord_legend)
+        else :
+            ### Create a XLM file for all possible legend
+            CreateXML.createXML(self.path, self.img.shape, coord_legend)
 
-        # Start Inteface to change an perform Plan and legend
-        Interface.OpenLabelImg(self.path)
-        p,c = CreateXML.readXML(self.path)
+            # Start Inteface to change an perform Plan and legend
+            Interface.OpenLabelImg(self.path)
+            p,c = CreateXML.readXML(self.path)
 
-        legend = self.img[c[1]: c[3], c[0]: c[2]]
-        print(p)
-        plan = self.img[p[1]: p[3], p[0]: p[2]]
+            legend = self.img[c[1]: c[3], c[0]: c[2]]
+            print(p)
+            plan = self.img[p[1]: p[3], p[0]: p[2]]
 
-        cv2.imwrite('data/plans/legend.jpg', legend)
-        cv2.imwrite('data/plans/plan.jpg', plan)
+            cv2.imwrite(self.path.replace(self.path.split("/")[-1],"legend.jpg"), legend)
+            cv2.imwrite(self.path.replace(self.path.split("/")[-1],"plan.jpg"), plan)
 
-        return
-
-    # Look at all contour and only select best for Plan type
-    def findPlan(self, contours=None):
-        if contours is None: contours = self.lookForContours()
-        coord_plan = []
-        size_plan = []
-
-        for contour in contours:
-            area = cv2.contourArea(contour)
-            if area > self.img.shape[0] + self.img.shape[1]:
-                # get rectangle bounding contour
-                [x, y, w, h] = cv2.boundingRect(contour)
-                size_plan.append((x + w) * 2 + (y + h) * 2)
-                coord_plan.append([x, y, w, h])
-
-        if not coord_plan:
-            print("NO PLAN FIND")
-            return
-
-        c = coord_plan[0] if len(coord_plan) == 1 else coord_plan
-        c = c[size_plan.index(max(size_plan))]
-        plan = self.img[c[1]:c[1] + c[3], c[0]:c[0] + c[2]]
-        cv2.imwrite('data/plans/plan.jpg', plan)
         return
 
     def findLogos(self, filepath=None):
-        if filepath is None : filepath = "data/plans/legend.jpg"
+        if filepath is None : filepath = self.path.replace(self.path.split("/")[-1],"legend.jpg")
+        print(filepath)
         legend = cv2.imread(filepath)
         legend_processed = self.imageProcess(legend,threshLvl=70)
 
         contours = self.lookForContours(legend_processed)
-        cv2.imwrite('roi.jpg', legend)
+        #cv2.imwrite('roi.jpg', legend)
 
         coord_legend = []
-        size_legend = []
 
         for contour in contours:
-            area = cv2.contourArea(contour)
-            #if area > legend.shape[0]/5 and area < legend.shape[0] *legend.shape[1]:
-                # get rectangle bounding contour
             [x, y, w, h] = cv2.boundingRect(contour)
-            size_legend.append((x + w) * 2 + (y + h) * 2)
-            cv2.rectangle(legend, (x, y), (x + w, y + h), (255, 0, 255), 3)
-            coord_legend.append([x, y, w, h])
+            if w+h < (legend.shape[0] + legend.shape[1])/3:
+                #cv2.rectangle(legend, (x, y), (x + w, y + h), (255, 0, 255), 3)
+                coord_legend.append([x, y, w, h])
 
         if not coord_legend:
             print("NO LOGOS FIND")
@@ -146,6 +110,7 @@ class detectPlanLegend:
         Interface.OpenLabelImg(filepath)
         coord_logos = CreateXML.readLogosXML(filepath)
 
+        system("rm  data/logos/*")
         for l,i in zip(coord_logos,range(len(coord_logos))):
             cv2.imwrite('data/logos/logo_'+str(i)+'.jpg', legend[l[1]:l[3],l[0]:l[2]])
 
@@ -171,11 +136,11 @@ class detectPlanLegend:
         return coord_traiten
 
     def DetectLogo(self):
-        img_rgb = cv2.imread("data/plans/plan.jpg")
+        img_rgb = cv2.imread(self.path.replace(self.path.split("/")[-1],"plan.jpg"))
         img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
         coord_global = []
 
-        allFiles = glob.glob("data/logos/logo_*.jpg")
+        allFiles = glob.glob("data/logos/*.jpg")
         n = len(allFiles)
         print("########## Start process  ###########")
         i = 1
@@ -210,12 +175,14 @@ class detectPlanLegend:
 
             print("End process ")
 
-        coord_global = self.clear_coord_logos(coord_global)
-        with open('data/logos.txt', 'w') as f:
-            for i in coord_global:
-                for c in i:
-                    f.write("{}\n".format(c))
-                    cv2.rectangle(img_rgb, (int(c[0]), int(c[1])), (int(c[2]), int(c[3])), (255, 255, 255), -1)
+        #coord_global = self.clear_coord_logos(coord_global)
+
+
+       # with open('data/logos.txt', 'w') as f:
+            #for i in coord_global:
+                #for c in i:
+                    #f.write("{}\n".format(c))
+                    #cv2.rectangle(img_rgb, (int(c[0]), int(c[1])), (int(c[2]), int(c[3])), (255, 255, 255), -1)
 
         cv2.imwrite('data/resultat_detection_logo.png', img_rgb)
         return img_rgb
