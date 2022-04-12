@@ -3,13 +3,6 @@ import os
 from tkinter import filedialog
 from sys import platform
 
-if platform == "linux" or platform == "linux2":
-# linux
-elif platform == "darwin":
-# OS X
-elif platform == "win32":
-# Windows...
-
 def SelectImage():
     img_path = filedialog.askopenfilename(initialdir=os.getcwd())
     return img_path
