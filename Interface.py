@@ -35,6 +35,9 @@ def LSD():
 
 def OpenLabelImg(path):
     system("python ./labelImgmaster/labelImg.py "+'"'+path+'"')
+
+def startApplication():
+    system("")
     
 if __name__ == "__main__":
     path = SelectImage()
