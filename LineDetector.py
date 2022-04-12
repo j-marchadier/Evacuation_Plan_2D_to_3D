@@ -2,10 +2,9 @@ import cv2
 import numpy as np
 
 def line(imgPath=None):
-    if imgPath is None: imgPath="data/plans/plan.jpg"
+    if imgPath is None: imgPath="data/result.jpg"
 
     img = cv2.imread(imgPath,0)
-    # Read gray image
 
     _, thresh = cv2.threshold(img, 30, 255, cv2.THRESH_BINARY)
 

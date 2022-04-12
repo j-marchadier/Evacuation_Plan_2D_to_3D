@@ -3,7 +3,6 @@ import LineDetector
 import ObjectDetection
 import detectPlanLegend
 
-print("a")
 # SELECT FILE
 pathfile = Interface.SelectImage()
 
@@ -19,10 +18,12 @@ detected.findLogos()
 
 # DETECT LOGOS IN PLAN
 #detected.DetectLogo()  # function qui marche moins bien
-ObjectDetection.main("data/plans/plan.jpg")
+ObjectDetection.main()
 
 # RETURN LINES COORD
-LineDetector.line("/data/result.jpg")
+LineDetector.line()
+
+
 
 
 
