@@ -24,12 +24,6 @@ public class RayCaster : MonoBehaviour
 
     public GameObject actual_wall;
 
-    Dictionary<GameObject, int> Wall_to_axis;
-
-
-
-
-
 
     // Start is called before the first frame update
     void Start()
@@ -41,8 +35,6 @@ public class RayCaster : MonoBehaviour
         this.actual_axis = 'x';
         this.actual_direction = -1;
         this.actual_wall = null;
-
-        this.Wall_to_axis = new Dictionary<GameObject, int>();
     }
 
     public void start_operation()
@@ -92,7 +84,7 @@ public class RayCaster : MonoBehaviour
 
     private void get_external_walls() // l'axe, la position, la limit de distance, et la direction
     {
-        Debug.Log("dans get external walls");
+        //Debug.Log("dans get external walls");
         float distance = 120;
         float ecart = 10;
         float duration = 300;
@@ -139,15 +131,13 @@ public class RayCaster : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, layer_mask))
         {
-            Debug.Log("Hit!");
-            Debug.Log(hit.collider.gameObject.tag);
-            if (!this.external_walls.Contains(hit.collider.gameObject))
+            //Debug.Log("Hit!");
+            //Debug.Log(hit.collider.gameObject.tag);
+            if (!this.external_walls.Contains(hit.collider.gameObject) && hit.collider.gameObject.tag == Utilities.TAG_WALL)
             {
                 this.external_walls.Add(hit.collider.gameObject); // ajoute objet touché
-                hit.collider.gameObject.GetComponent<MeshRenderer>().material = (Material)Resources.Load("Materials/Red_ball", typeof(Material));
+                Utilities.loadMaterial(hit.collider.gameObject,Utilities.RED_MAT);
 
-                Wall_to_axis[hit.collider.gameObject] = this.actual_direction; /////////
-                /// ////////
             }
 
             switch (actual_axis)
@@ -160,17 +150,13 @@ public class RayCaster : MonoBehaviour
                             this.actual_pos = hit.collider.gameObject.GetComponent<MeshRenderer>().bounds.max.x + 1;
 
                             //modif pour plafond
-                            GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                            cube.name = "roof";
-                            cube.gameObject.tag = "roof";
+                            GameObject cube = makeRoof();
 
                             cube.transform.position = startpoint;
                             Vector3 target = startpoint;
                             target.x = hit.collider.gameObject.GetComponent<MeshRenderer>().bounds.min.x - 1;
-                            Vector3 direction = target - cube.transform.position;
-                            cube.transform.localScale = new Vector3(20, 20, direction.magnitude + 0.5f);
-                            cube.transform.position = cube.transform.position + (direction / 2);
-                            cube.transform.LookAt(target);
+
+                            Utilities.setTarget(cube,target,20,20);
 
                             break;
                         case -1:
@@ -188,16 +174,13 @@ public class RayCaster : MonoBehaviour
                             this.actual_pos = hit.collider.gameObject.GetComponent<MeshRenderer>().bounds.max.z + 1;
 
                             //modif pour plafond
-                            GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                            cube.name = "roof";
-                            cube.gameObject.tag = "roof";
+                            GameObject cube = makeRoof();
+
                             cube.transform.position = startpoint;
                             Vector3 target = startpoint;
                             target.z = hit.collider.gameObject.GetComponent<MeshRenderer>().bounds.min.z - 1;
-                            Vector3 direction = target - cube.transform.position;
-                            cube.transform.localScale = new Vector3(20, 20, direction.magnitude + 0.5f);
-                            cube.transform.position = cube.transform.position + (direction / 2);
-                            cube.transform.LookAt(target);
+
+                            Utilities.setTarget(cube, target, 20, 20);
 
                             break;
                         case -1:
@@ -215,7 +198,7 @@ public class RayCaster : MonoBehaviour
         }
         else
         {
-            Debug.Log("Pas de hit !");
+            //Debug.Log("Pas de hit !");
             this.actual_pos += this.actual_direction;
 
         }
@@ -229,7 +212,7 @@ public class RayCaster : MonoBehaviour
                     case 'x': // en haut vers la droite
                         if (this.actual_pos > this.maxX)
                         {
-                            Debug.Log("switch actual_axis !");
+                            //Debug.Log("switch actual_axis !");
                             this.actual_pos = this.maxZ;
                             this.actual_axis = 'z';
                             this.actual_direction = -1;
@@ -240,7 +223,7 @@ public class RayCaster : MonoBehaviour
                     case 'z': // a gauche vers le haut
                         if (this.actual_pos > this.maxZ)
                         {
-                            Debug.Log("switch actual_axis !");
+                            //Debug.Log("switch actual_axis !");
                             this.actual_pos = this.minX;
                             this.actual_axis = 'x';
                             this.actual_direction = 1;
@@ -258,7 +241,7 @@ public class RayCaster : MonoBehaviour
                     case 'x': // en bas vers la gauche
                         if (this.actual_pos < this.minX)
                         {
-                            Debug.Log("switch actual_axis !");
+                            //Debug.Log("switch actual_axis !");
                             this.actual_pos = this.minZ;
                             this.actual_axis = 'z';
                             this.actual_direction = 1;
@@ -268,15 +251,16 @@ public class RayCaster : MonoBehaviour
                     case 'z': // a droite vers le bas
                         if (this.actual_pos < this.minZ)
                         {
-                            Debug.Log("switch actual_axis !");
-                            Debug.Log("Operation finished !!!");
+                            //Debug.Log("switch actual_axis !");
+                            //Debug.Log("Operation finished !!!");
 
                             this.stop_operation(); // no more getting walls
 
+                            /*
                             foreach (GameObject w in this.external_walls)
                             {
                                 Debug.Log(w);
-                            }
+                            }*/
                         }
                         break;
                     default:
@@ -286,7 +270,12 @@ public class RayCaster : MonoBehaviour
             default:
                 break;
         }
+    }
 
-
+    private GameObject makeRoof(){
+        GameObject cube = Utilities.createCube(Utilities.TAG_ROOF);
+        cube.transform.parent = GameObject.FindWithTag(Utilities.TAG_CONTAINER).transform;
+        Utilities.loadMaterial(cube, Utilities.ROOF_MAT);
+        return cube;
     }
 }

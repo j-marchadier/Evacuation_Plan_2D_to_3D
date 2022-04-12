@@ -7,10 +7,11 @@ using System.IO;
 public class Prefab_visu
 {
 
-    GameObject[] prefabList;
+    //GameObject[] prefabList;
+    List<string> prefabList;
     // list of all saved prefab object
     int prefabNum = 0;
-    // numebr of the current prefab we are looking at
+    // number of the current prefab we are looking at
     GameObject currentPrefab;
     // the current prefab we are looking at
 
@@ -18,6 +19,7 @@ public class Prefab_visu
     public Prefab_visu()
     // visualize the prefab
     {
+        prefabList = new List<string>();
         charge_prefabs();
         // charge all currently saved prefabs
 
@@ -29,7 +31,7 @@ public class Prefab_visu
         bool right_cycle = false; // next to the right
         bool left_cycle = false; // next to the left
 
-        if (prefabList.Length > 0)
+        if (prefabList.Count > 0)
         // if we do have some saved prefabs
         {
             if (Input.GetKeyDown(KeyCode.RightArrow))
@@ -50,7 +52,7 @@ public class Prefab_visu
                 right_cycle = false; // we are not moving to the right anymore
                 clear(); // clear the current visualization
                 prefabNum += 1; // move one prefab to the right in the list
-                if (prefabNum >= prefabList.Length)
+                if (prefabNum >= prefabList.Count)
                 {
                     prefabNum = 0; // if we go to far, go back the start of the list
                 }
@@ -63,7 +65,7 @@ public class Prefab_visu
                 prefabNum -= 1;  // move one prefab to the left in the list
                 if (prefabNum < 0)
                 {
-                    prefabNum = prefabList.Length - 1; // if we go to far, go back the end of the list
+                    prefabNum = prefabList.Count - 1; // if we go to far, go back the end of the list
                 }
             }
             visuPrefab(); // visualize the current prefab
@@ -75,8 +77,11 @@ public class Prefab_visu
     {
         if (currentPrefab == null) // if we have a target to visualize
         {
-            currentPrefab = GameObject.Instantiate(prefabList[prefabNum]); // get the object from the list and instantiate it
-            currentPrefab.gameObject.tag = "prefab"; // give it a special tag
+            this.currentPrefab = Utilities.remakeObject(Utilities.TAG_PREFAB);
+            string path = prefabList[prefabNum];
+
+            Utilities.loadPrefab(currentPrefab, path);
+            //currentPrefab = GameObject.Instantiate(prefabList[prefabNum]); // get the object from the list and instantiate it
         }
     }
 
@@ -89,18 +94,21 @@ public class Prefab_visu
     public void charge_prefabs()
     // charge all existing prefabs
     {
-        prefabList = Resources.LoadAll<GameObject>("Prefab"); // search for and load all prefab files
+        prefabList = Utilities.getFilesAt(Utilities.getPath() + Utilities.OUTPUT_FOLDER_NAME,"prefab*.txt");
 
-        if (prefabList.Length <= 0)
+        //prefabList = Resources.LoadAll<GameObject>("Prefab"); // search for and load all prefab files
+
+        if (prefabList.Count <= 0)
         // if there are no prefabs
         {
             Debug.Log("No prefab to visualize");
         }
+
     }
 
     public bool prefab_list_is_empty()
     {
-        return prefabList.Length <= 0; // is the prefab list empty ?
+        return prefabList.Count <= 0; // is the prefab list empty ?
     }
 
     public GameObject visualizedPrefab()

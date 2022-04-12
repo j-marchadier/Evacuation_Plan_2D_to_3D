@@ -1,2 +1,0 @@
--> voir la camera (positionnement)
--> mur qui est bien (bullet)

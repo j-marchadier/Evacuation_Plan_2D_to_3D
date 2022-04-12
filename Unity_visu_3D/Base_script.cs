@@ -11,9 +11,6 @@ public class Base_script : MonoBehaviour
     GameObject rotation;
     // the camera carrier object
 
-    Loader ld;
-    // the information loader
-
     bool visualizing = false;
     // we do not start visualizing
     bool making = true;
@@ -22,23 +19,24 @@ public class Base_script : MonoBehaviour
     void Start()
     // called at object creation
     {
+        Utilities.createDir(Utilities.INPUT_FOLDER_NAME,Utilities.getPath());
+        Utilities.createDir(Utilities.OUTPUT_FOLDER_NAME, Utilities.getPath());
+
+
         Cursor.lockState = CursorLockMode.Confined;
         Cursor.visible = false;
         // cursor is locked in place and invisible.
 
-        ld = new Loader(); // create an information loader
-        ld.LoadAll(); // load everything needed
-        transform.tag = "start"; // give a special tag this object
+        //Utilities.loadAllTags(); // load all the tags
+        transform.tag = Utilities.TAG_START; // give a special tag this object
 
-        pmake = new Prefab_make(ld); // initialize the prefab maker with our information loader
+        pmake = new Prefab_make(); // initialize the prefab maker
         pvisu = new Prefab_visu(); // initialize the prefab visualizer
-        rotation = new GameObject("Rotation"); // create the camera holder object
+        rotation = Utilities.remakeObject(Utilities.TAG_ROTATION); // make the camera holder
 
         GameObject mc = GameObject.FindGameObjectWithTag("MainCamera"); // find the main camera
-        mc.transform.position = new Vector3(-528, 449, -369); // define the starting position to have a good viewing angle
-        rotation.AddComponent<CameraLookAt>();
-        // add a component that makes the camera look towards the camera holder
-        rotation.transform.tag = "rotation"; // give a special tag to the camera holder
+        mc.transform.position = Utilities.camera_position; // define the starting position to have a good viewing angle
+        rotation.AddComponent<CameraLookAt>(); // add a component that makes the camera look towards the camera holder
         rotation.GetComponent<CameraLookAt>()._camera = mc; // give the main camera to the camera holder
     }
 
@@ -48,19 +46,20 @@ public class Base_script : MonoBehaviour
         bool old_making_val = making; // the old "I am making a prefab" value
         bool old_visualizing_val = visualizing; // the old "I am looking at prefabs" value
 
-        if (Input.GetKeyDown(KeyCode.P)) // if I press P
+        if (Input.GetKeyDown(Utilities.MAKE_PREFAB_MODE)) // if I press P
         {
             visualizing = false; // get out of visualizing mode
             making = true; // get into making mode
         }
-        if (Input.GetKeyDown(KeyCode.V)) // if I press V
+        if (Input.GetKeyDown(Utilities.VISU_PREFAB_MODE)) // if I press V
         {
             visualizing = true;// get into visualizing mode
             making = false; // get out of making mode
         }
-        if (Input.GetKeyDown(KeyCode.Escape)) // if I press Escape
+        if (Input.GetKeyDown(Utilities.QUIT)) // if I press Escape
         {
-            UnityEditor.EditorApplication.isPlaying = false; // stop the program
+            //UnityEditor.EditorApplication.isPlaying = false; // stop the program
+            Application.Quit();
         }
 
         if (making) // if currently in making mode

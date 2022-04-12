@@ -17,11 +17,11 @@ public class Prefab_make
 
     float wallSize;
     // size of the walls
-
     float previousWallSize;
     // previous size of the walls
     float currentWallSize;
     // current size of the walls
+
     float wallWidth;
     // width of the walls
     float previousWallWidth;
@@ -31,34 +31,28 @@ public class Prefab_make
 
     float adjustFloorSize;
     // size of the floor/roof
-
     float previousFloorSize;
     // previous size of the floor / roof
     float currentFloorSize;
     // current size of the floor / roof
 
-    readfile rf;
+    Readfile rf;
     // a file reader
 
-    public Loader ld;
-    // an infomration and components loader
-    string[] filelist_walls;
+    List<string> filelist_walls;
     // list of all "walls" files
-    string wall_file;
-    // name of the actual "walls" file
 
     char fileTag;
     // tag of the actual file considered (0, 1, 2, ...)
-
     int nFile;
     // placement of the current file in the list
 
+    string wall_file;
+    // name of the actual "walls" file
     string item_file;
     // name of the actual "items" file
-
     string door_file;
     // name of the actual "doors" file
-
 
     bool just_switched;
     // did we just switch to making mode ? true / false
@@ -69,32 +63,31 @@ public class Prefab_make
     GameObject rayMaker;
     // raymaker object to find exterior walls and place roofs / floors
 
-    public Prefab_make(Loader l)
+    public Prefab_make()
     // make a prefab
     {
-        this.ld = l; // get the Loader
+        filelist_walls = new List<string>();
         nFile = 0;
         // start with the first file in the list
 
-        filelist_walls = Directory.GetFiles(Application.dataPath + "/", "*_mur.txt");
+        filelist_walls = Utilities.getFilesAt(Utilities.getPath()+Utilities.INPUT_FOLDER_NAME,"*_mur.txt");
         // get all "walls" files
-        if (filelist_walls.Length <= 0)
+        if (filelist_walls.Count <= 0)
         // if there is no "walls" file at all
         {
             Debug.Log("No file to read ! Add files to Assets/");
-            UnityEditor.EditorApplication.isPlaying = false; // stop the application
+            //UnityEditor.EditorApplication.isPlaying = false; // stop the application
+            Application.Quit();
         }
 
-        wallSize = 20;
-        previousWallSize = wallSize;
-        wallWidth = 6.35f;
-        previousWallWidth = wallWidth;
-        adjustFloorSize = 52;
-        previousFloorSize = adjustFloorSize;
+        wallSize = Utilities.wallSize;
+        previousWallSize = Utilities.previousWallSize;
+        wallWidth = Utilities.wallWidth;
+        previousWallWidth = Utilities.previousWallWidth;
+        adjustFloorSize = Utilities.adjustFloorSize;
+        previousFloorSize = Utilities.previousFloorSize;
         // set basic wall size, width, and floor size
 
-        while (!ld.isFinished()) Debug.Log("Waiting for textures...");
-        // wait for the Loader to finish loading all textures
 
         old_hide_value = hide_roof;
         // get the old hide roof value
@@ -133,37 +126,37 @@ public class Prefab_make
             bool makePrefab = false;
             // various booleans to switch betweeen objects and save a prefab
 
-            if (Input.GetKeyDown(KeyCode.Return)) makePrefab = true; // make prefab if press Enter
-            if (Input.GetKeyDown(KeyCode.RightArrow)) right_cycle = true; // right arrow switch rigth
-            if (Input.GetKeyDown(KeyCode.LeftArrow)) left_cycle = true; // left arrow switch left
+            if (Input.GetKeyDown(Utilities.MAKE_PREFAB)) makePrefab = true; // make prefab if press Enter
+            if (Input.GetKeyDown(Utilities.CYCLE_RIGHT)) right_cycle = true; // right arrow switch rigth
+            if (Input.GetKeyDown(Utilities.CYCLE_LEFT)) left_cycle = true; // left arrow switch left
 
-            if (Input.GetKeyDown(KeyCode.H)) hide_roof = !hide_roof; // H hides the roof
+            if (Input.GetKeyDown(Utilities.HIDE_ROOF)) hide_roof = !hide_roof; // H hides the roof
 
-            if (Input.GetKey(KeyCode.A)) // A decreases wall size
+            if (Input.GetKey(Utilities.DEC_WALLSIZE)) // A decreases wall size
             {
-                if (wallSize >= 1) wallSize -= 0.1f;
+                if (wallSize >= Utilities.WallSizeMin) wallSize -= Utilities.GROW_SPEED;
             }
-            else if (Input.GetKey(KeyCode.Z)) // Z increases wall size
+            else if (Input.GetKey(Utilities.INC_WALLSIZE)) // Z increases wall size
             {
-                if (wallSize <= 100) wallSize += 0.1f;
-            }
-
-            if (Input.GetKey(KeyCode.Q)) // Q decreases wall width
-            {
-                if (wallWidth >= 1) wallWidth -= 0.1f;
-            }
-            else if (Input.GetKey(KeyCode.S)) // S increases wall width
-            {
-                if (wallWidth <= 10) wallWidth += 0.1f;
+                if (wallSize <= Utilities.WallSizeMax) wallSize += Utilities.GROW_SPEED;
             }
 
-            if (Input.GetKey(KeyCode.W)) // W decreases floor / roof size
+            if (Input.GetKey(Utilities.DEC_WALLWIDTH)) // Q decreases wall width
             {
-                if (adjustFloorSize >= 0) adjustFloorSize -= 0.1f;
+                if (wallWidth >= Utilities.WallWidthMin) wallWidth -= Utilities.GROW_SPEED;
             }
-            else if (Input.GetKey(KeyCode.X)) // X increases floor / roof size
+            else if (Input.GetKey(Utilities.INC_WALLWIDTH)) // S increases wall width
             {
-                if (adjustFloorSize <= 60) adjustFloorSize += 0.1f;
+                if (wallWidth <= Utilities.WallWidthMax) wallWidth += Utilities.GROW_SPEED;
+            }
+
+            if (Input.GetKey(Utilities.DEC_FLOORSIZE)) // W decreases floor / roof size
+            {
+                if (adjustFloorSize >= Utilities.FloorSizeMin) adjustFloorSize -= Utilities.GROW_SPEED;
+            }
+            else if (Input.GetKey(Utilities.INC_FLOORSIZE)) // X increases floor / roof size
+            {
+                if (adjustFloorSize <= Utilities.FloorSizeMax) adjustFloorSize += Utilities.GROW_SPEED;
             }
 
             if (right_cycle)
@@ -171,7 +164,7 @@ public class Prefab_make
             {
                 right_cycle = false; // not cycling right anymore
                 nFile += 1; // increase file position in list
-                if (nFile >= filelist_walls.Length)
+                if (nFile >= filelist_walls.Count)
                 {
                     nFile = 0; // go back to the start if going too far
                 }
@@ -185,7 +178,7 @@ public class Prefab_make
                 nFile -= 1;// decrease file position in list
                 if (nFile < 0)
                 {
-                    nFile = filelist_walls.Length - 1;// go back to the end if going too far
+                    nFile = filelist_walls.Count - 1;// go back to the end if going too far
                 }
                 mesh_made = false; // mesh is not made anymore
                 just_switched = true;// we just switched
@@ -193,7 +186,8 @@ public class Prefab_make
             if (makePrefab)
             // if we make a prefab
             {
-                registerPrefab(); // save a prefab
+                Utilities.savePrefab(container, int.Parse(fileTag+""));
+                //registerPrefab(); // save a prefab
             }
 
             updateMesh(); // update the mesh
@@ -214,7 +208,7 @@ public class Prefab_make
         // define the quantity that still needs to change
 
 
-        GameObject[] walls = GameObject.FindGameObjectsWithTag("wall");
+        GameObject[] walls = GameObject.FindGameObjectsWithTag(Utilities.TAG_WALL);
         // get all walls
         foreach (GameObject wall in walls)
         // for all walls
@@ -223,7 +217,7 @@ public class Prefab_make
             // update the size and width
         }
 
-        GameObject[] floors = GameObject.FindGameObjectsWithTag("floor");
+        GameObject[] floors = GameObject.FindGameObjectsWithTag(Utilities.TAG_FLOOR);
         // get all floors
         foreach (GameObject floor in floors)
         // for all floors
@@ -239,7 +233,7 @@ public class Prefab_make
             }
         }
 
-        GameObject[] roofs = GameObject.FindGameObjectsWithTag("roof");
+        GameObject[] roofs = GameObject.FindGameObjectsWithTag(Utilities.TAG_ROOF);
         // get all roofs
         foreach (GameObject roof in roofs)
         // for all roofs
@@ -267,30 +261,24 @@ public class Prefab_make
     private void createMesh()
     // create a mesh for the current file
     {
-        if (GameObject.Find("container") != null)
-        {
-            GameObject.DestroyImmediate(GameObject.Find("container"));
-            // if the container object already exists, destroy it
-        }
-        container = new GameObject("container");
+        this.container = Utilities.remakeObject(Utilities.TAG_CONTAINER);
         // create a container
-        container.gameObject.tag = "prefab";
-        // give it a special tag
 
         wall_file = filelist_walls[nFile];
         // get the name of the "walls" file from the list
 
-        string cutname = wall_file.Split()[wall_file.Split().Length - 1];
+        string cutname = wall_file.Split('/')[wall_file.Split('/').Length - 1];
         // get the name without the path
-        string justname = cutname.Split()[0];
+        string justname = cutname.Split('.')[0];
         // get the name without the extension
         fileTag = justname[0];
         // get the tag in the file name
 
-        rf = new readfile(wall_file, "walls");
+        rf = new Readfile(wall_file, "walls");
         rf.read();
         // read the current "walls" file
 
+        /*
         string[] filelist_logos = Directory.GetFiles(Application.dataPath + "/", fileTag + "_items.txt");
         if (filelist_logos.Length > 0) item_file = filelist_logos[0];
         // read the current "items" file
@@ -298,6 +286,7 @@ public class Prefab_make
         string[] filelist_doors = Directory.GetFiles(Application.dataPath + "/", fileTag + "_doors.txt");
         if (filelist_doors.Length > 0) door_file = filelist_doors[0];
         // read the current "doors" file
+        */
 
         for (int i = 0; i < rf.myarray.Length; i += 4)
         // move in the corrdinate arrays 4 by 4 (x1 z1 x2 z2 for each wall, 1 start and 2 end of wall)
@@ -314,19 +303,6 @@ public class Prefab_make
         previousWallWidth = wallWidth;
         previousFloorSize = adjustFloorSize;
         // update all previous values
-    }
-
-    void SetTarget(GameObject cube, Vector3 target)
-    // give a target to an object
-    {
-        Vector3 direction = target - cube.transform.position;
-        // define the direction vector
-        cube.transform.localScale = new Vector3(wallWidth, wallSize, direction.magnitude + 0.5f);
-        // adjust object size and width
-        cube.transform.position = cube.transform.position + (direction / 2);
-        // adjust object position to halfway to the target (Unity objects extend from the middle)
-        cube.transform.LookAt(target);
-        // turn object to face the target
     }
 
     private void make_roof_floor()
@@ -350,17 +326,18 @@ public class Prefab_make
         Vector3 A = new Vector3(-rf.myarray[index], 0, rf.myarray[index + 1]);
         Vector3 B = new Vector3(-rf.myarray[index + 2], 0, rf.myarray[index + 3]);
         // get the start A of the wall and its end B
-        GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+
+        GameObject cube = Utilities.createCube(Utilities.TAG_WALL);
         // create a cube
         cube.name = "wall_" + index;
-        cube.gameObject.tag = "wall";
-        // name it as a "wall"
+        // name it as a "wall_index"
+        Utilities.childToParent(cube,container);
         cube.transform.parent = container.transform;
         // move it into the container
         cube.transform.position = A;
-        SetTarget(cube, B);
+        Utilities.setTarget(cube, B, wallWidth, wallSize);
         // set the cube in position A and make it look to position B
-        LoadMaterial(cube, "wall");
+        Utilities.loadMaterial(cube, Utilities.WALL_MAT);
         // give the cube the "wall" texture
     }
 
@@ -382,26 +359,7 @@ public class Prefab_make
         ;
     }
 
-    void LoadMaterial(GameObject obj, string mat)
-    // give an object a specific texture
-    {
-        Material[] materials = obj.GetComponent<MeshRenderer>().materials;
-        // get the materials of the objects
-
-        if (materials.Length > 0 && ld.hasMat(mat))
-        // if there is place to put a materialn and the material asked for exists in the Loader
-        {
-            if (!ld.mat_is_null(mat))
-            // if the material in the Loader is not null
-            {
-                materials[0] = ld.getMat(mat);
-                // get the texture from the Loader
-                obj.GetComponent<MeshRenderer>().materials = materials;
-                // apply the texture
-            }
-        }
-    }
-
+/*
     void registerPrefab()
     // save current object as a prefab
     {
@@ -414,6 +372,7 @@ public class Prefab_make
         PrefabUtility.SaveAsPrefabAsset(GameObject.Find("container"), pathname);
         // save the prefab
     }
+*/
 
     public void setSwitch(bool b)
     {

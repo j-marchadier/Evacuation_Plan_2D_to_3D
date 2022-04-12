@@ -12,7 +12,7 @@ public class CameraLookAt : MonoBehaviour
     float speedY = 5;
     // y speed of camera
 
-    readfile rf;
+    Readfile rf;
     // a file reader
 
     [SerializeField]
@@ -21,14 +21,15 @@ public class CameraLookAt : MonoBehaviour
 
     private void Start()
     {
-        rf = new readfile(Directory.GetFiles(Application.dataPath + "/", "*_mur.txt")[0], "walls");
+        string file = Utilities.getFilesAt(Utilities.getPath() + Utilities.INPUT_FOLDER_NAME + "/", "*_mur.txt")[0];
+        rf = new Readfile(file, "walls");
         rf.read();
         // read a "wall" file to get all of the values
         transform.position = new Vector3(-rf.meanX, 0, rf.meanZ);
         // move teh current object to the center of the object in the file
-        _camera.transform.parent = this.transform;
+        Utilities.childToParent(_camera,this.gameObject);
         // move the camera to the object
-        _camera.GetComponent<Camera>().farClipPlane = 10000;
+        _camera.GetComponent<Camera>().farClipPlane = Utilities.farClipPlane;
         // set camera render distance
     }
     void Update()

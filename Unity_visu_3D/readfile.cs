@@ -4,7 +4,7 @@ using UnityEngine;
 using System.IO;
 using System.Linq;
 
-public class readfile
+public class Readfile
 {
     public float[] myarray;
     // creates a list of x and y coordinates (mostly unused)
@@ -36,7 +36,7 @@ public class readfile
     // type of the file read (walls, items, doors)
 
 
-    public readfile(string filename, string tag)
+    public Readfile(string filename, string tag)
     // read a file
     {
         this.filename = filename; // register file name
