@@ -127,3 +127,12 @@ def readLogosXML(pathfile):
         coord_logo.append(c)
 
     return coord_logo
+
+def readLabelXML(pathfile):
+    xmldoc = ET.parse(pathfile.split(".")[0]+".xml")
+    itemlist = xmldoc.getroot()
+    label_logo=[]
+    for object in itemlist[6:]:
+        label_logo.append(object[0].text)
+
+    return label_logo

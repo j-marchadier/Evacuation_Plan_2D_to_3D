@@ -1,22 +1,28 @@
-import detectPlanLegend
 import Interface
 import LineDetector
+import ObjectDetection
+import detectPlanLegend
 
-#pathfile = Interface.SelectImage()
-#print(pathfile)
+print("a")
+# SELECT FILE
+pathfile = Interface.SelectImage()
 
-# Etape 1 => Detect plan and legend
-#detected = detectPlanLegend.detectPlanLegend(pathfile)
+# INIT CLASS
+detected = detectPlanLegend.detectPlanLegend(pathfile)
 #detected = detectPlanLegend.detectPlanLegend("data/plans/esiee.jpg")
 
-# Return a legend.jpg with only the legend
-#detected.findLegendAndPlan()
+# DETECT PLAN AND LEGEND
+detected.findLegendAndPlan()
 
-#detected.findLogos()
+# LABELIZED LOGOS
+detected.findLogos()
 
-#detected.DetectLogo()
+# DETECT LOGOS IN PLAN
+#detected.DetectLogo()  # function qui marche moins bien
+ObjectDetection.main("data/plans/plan.jpg")
 
-LineDetector.line("/data/plans/plan.jpg")
+# RETURN LINES COORD
+LineDetector.line("/data/result.jpg")
 
 
 

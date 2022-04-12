@@ -9,3 +9,4 @@ exit
 défibrilateur
 point de rassemblement
 déclancheur
+autre
