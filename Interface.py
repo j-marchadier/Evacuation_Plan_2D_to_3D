@@ -1,23 +1,39 @@
 from os import system
-import sys
 import os
 from tkinter import filedialog
-import xml.etree.ElementTree as ET
-import cv2
-import numpy as np
+from sys import platform
+
+if platform == "linux" or platform == "linux2":
+# linux
+elif platform == "darwin":
+# OS X
+elif platform == "win32":
+# Windows...
 
 def SelectImage():
     img_path = filedialog.askopenfilename(initialdir=os.getcwd())
     return img_path
 
 def OpenLabelImg(path):
-    system("python ./labelImgmaster/labelImg.py "+'"'+path+'"')
+    if platform == "linux" or platform == "linux2" or platform == "darwin":
+        system("python ./labelImgmaster/labelImg.py "+'"'+path+'"')
+    elif platform == "win32":
+        system("python .\labelImgmaster\labelImg.py "+'"'+path+'"')
 
 def startApplication():
-    system("./wallMake_build/content/")
+    if platform == "linux" or platform == "linux2" or platform == "darwin":
+        system("./wallMake_build/content/")
+    elif platform == "win32":
+        system(".\wallMake_build\content")
 
 def delLogos():
-    system("rm -rf data/logos")
+    if platform == "linux" or platform == "linux2" or platform == "darwin":
+        system("rm -rf data/logos")
+    elif platform == "win32":
+        system("rm -rf data\logos")
 
 def createLogos():
-    system("mkdir data/logos")
+    if platform == "linux" or platform == "linux2" or platform == "darwin":
+        system("mkdir data/logos")
+    elif platform == "win32":
+        system("mkdir data\logos")
