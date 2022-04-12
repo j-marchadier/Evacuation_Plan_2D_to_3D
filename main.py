@@ -23,7 +23,7 @@ ObjectDetection.main()
 # RETURN LINES COORD
 LineDetector.line()
 
-
+Interface.startApplication()
 
 
 

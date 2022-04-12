@@ -83,7 +83,7 @@ class detectPlanLegend:
         return
 
     def findLogos(self, filepath=None):
-        system("rm -rf data/logos")
+        Interface.delLogos()
         if filepath is None : filepath = self.path.replace(self.path.split("/")[-1],"legend.jpg")
         print(filepath)
         legend = cv2.imread(filepath)
@@ -111,7 +111,8 @@ class detectPlanLegend:
         Interface.OpenLabelImg(filepath)
         coord_logos = CreateXML.readLogosXML(filepath)
 
-        system("mkdir data/logos")
+        Interface.createLogos()
+
         for l,i in zip(coord_logos,range(len(coord_logos))):
             cv2.imwrite('data/logos/logo_'+str(i)+'.jpg', legend[l[1]:l[3],l[0]:l[2]])
 
