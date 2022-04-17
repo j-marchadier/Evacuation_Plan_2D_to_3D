@@ -109,9 +109,11 @@ public static class Utilities
     public static KeyCode INC_WALLWIDTH = KeyCode.S;// key to increase wall width
     public static KeyCode DEC_FLOORSIZE = KeyCode.W; // key to decrease floor size
     public static KeyCode INC_FLOORSIZE = KeyCode.X;// key to increase floor size
-    public static KeyCode MAKE_PREFAB_MODE = KeyCode.P; //
-    public static KeyCode VISU_PREFAB_MODE = KeyCode.V;//
-    public static KeyCode QUIT = KeyCode.Escape;
+    public static KeyCode MAKE_PREFAB_MODE = KeyCode.P; // key to go into prefab making mode
+    public static KeyCode VISU_PREFAB_MODE = KeyCode.V;// key to go into visualization mode
+    public static KeyCode QUIT = KeyCode.Escape; // key to close the program
+    public static KeyCode CAMERA_ROTATION_MODE = KeyCode.R; // key to make the camera rotate
+    public static KeyCode CAMERA_INVERT_ROTATION = KeyCode.T; // key to make the camera rotate
 
 
     /*     WALLS / FLOORS / ROOFS     */
@@ -285,6 +287,9 @@ public static class Utilities
             Directory.CreateDirectory(filePath+ dirname);
         }
     }
+
+    /*      CAMERA      */
+    public static float CAMERA_ROTATION_SPEED = 0.05f;
 
 
 }

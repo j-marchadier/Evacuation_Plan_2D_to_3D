@@ -19,6 +19,9 @@ public class CameraLookAt : MonoBehaviour
     public GameObject _camera;
     // a camera
 
+    public bool cameraInRotationMode = false;
+    public int rotation_direction = 1;
+
     private void Start()
     {
         string file = Utilities.getFilesAt(Utilities.getPath() + Utilities.INPUT_FOLDER_NAME + "/", "*_mur.txt")[0];
@@ -34,7 +37,11 @@ public class CameraLookAt : MonoBehaviour
     }
     void Update()
     {
-        float inputX = Input.GetAxisRaw("Mouse X");
+        float inputX = 0;
+        if(!this.cameraInRotationMode)
+            inputX = Input.GetAxisRaw("Mouse X");
+        else
+            inputX = Utilities.CAMERA_ROTATION_SPEED * this.rotation_direction;
         // get mouse movements on X axis
         float inputY = Input.GetAxisRaw("Mouse Y");
         // get mouse movements on Y axis
@@ -45,5 +52,13 @@ public class CameraLookAt : MonoBehaviour
 
         _camera.transform.LookAt(transform.position);
         // look at the current object
+    }
+
+    public void switchMode(){
+        this.cameraInRotationMode = !this.cameraInRotationMode;
+    }
+
+    public void invertRotation(){
+        this.rotation_direction = -this.rotation_direction;
     }
 }

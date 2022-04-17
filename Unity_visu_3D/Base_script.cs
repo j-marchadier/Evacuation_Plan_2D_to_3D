@@ -46,20 +46,27 @@ public class Base_script : MonoBehaviour
         bool old_making_val = making; // the old "I am making a prefab" value
         bool old_visualizing_val = visualizing; // the old "I am looking at prefabs" value
 
-        if (Input.GetKeyDown(Utilities.MAKE_PREFAB_MODE)) // if I press P
+        if (Input.GetKeyDown(Utilities.MAKE_PREFAB_MODE)) // if the key is the prefab mode
         {
             visualizing = false; // get out of visualizing mode
             making = true; // get into making mode
         }
-        if (Input.GetKeyDown(Utilities.VISU_PREFAB_MODE)) // if I press V
+        if (Input.GetKeyDown(Utilities.VISU_PREFAB_MODE)) // if the key is the visualization mode
         {
             visualizing = true;// get into visualizing mode
             making = false; // get out of making mode
         }
-        if (Input.GetKeyDown(Utilities.QUIT)) // if I press Escape
+        if (Input.GetKeyDown(Utilities.QUIT)) // if the key is to close the program
         {
             //UnityEditor.EditorApplication.isPlaying = false; // stop the program
             Application.Quit();
+        }
+        if(Input.GetKeyDown(Utilities.CAMERA_ROTATION_MODE)){ // if the key is camera rotation mode
+            rotation.GetComponent<CameraLookAt>().switchMode();
+        }
+        if (Input.GetKeyDown(Utilities.CAMERA_INVERT_ROTATION))
+        { // if the key is camera invert rotation
+            rotation.GetComponent<CameraLookAt>().invertRotation();
         }
 
         if (making) // if currently in making mode
