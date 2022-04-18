@@ -1,5 +1,6 @@
 lxml
-CreateXML
-cv2
+opencv-python
 numpy
-xml.etree.ElementTre
+elementpath
+pyqt5
+tk

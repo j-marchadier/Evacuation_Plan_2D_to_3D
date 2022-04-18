@@ -11,23 +11,29 @@ def SelectImage():
     return img_path
 
 def OpenLabelImg(path):
-    system("python ./labelImgmaster/labelImg.py "+'"'+path+'"')
-    #if platform == "linux" or platform == "linux2" or platform == "darwin":
-       # print("A")
-       # system("python ./labelImgmaster/labelImg.py "+'"'+path+'"')
-        #print("B")
-    #elif platform == "win32":
-       # system("python .\labelImgmaster\labelImg.py "+'"'+path+'"')
+    if platform == "linux" or platform == "linux2" or platform == "darwin":
+        system("python ./labelImgmaster/labelImg.py "+'"'+path+'"')
+    else :
+        system("python labelImgmaster\labelImg.py "+path+'"')
 
 def startApplication():
-    system("chmod 777 wallmaker_macos.app/Contents/MacOS/wallmake")
-    system("./wallmaker_macos.app/Contents/MacOS/wallmake")
+    if platform == "linux" or platform == "linux2" or platform == "darwin":
+        system("chmod 777 wallmaker_macos.app/Contents/MacOS/wallmake")
+        system("./wallmaker_macos.app/Contents/MacOS/wallmake")
+    else:
+        system("start wallmaker_windows\wallmake.exe")
+
 
 def delLogos():
-
-    system("rm -rf data/logos")
+    if platform == "linux" or platform == "linux2" or platform == "darwin":
+        system("rm -rf data/logos")
+    else :
+        system("rd /s /q data\logos")
 
 
 def createLogos():
-    system("mkdir data/logos")
+    if platform == "linux" or platform == "linux2" or platform == "darwin":
+        system("mkdir data/logos")
+    else:
+        system("mkdir data\logos")
 

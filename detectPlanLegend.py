@@ -3,7 +3,6 @@ import numpy as np
 import CreateXML
 import Interface
 import glob
-from os import system
 
 
 # Detection du plan et de la legend
@@ -38,6 +37,7 @@ class detectPlanLegend:
         dilated = cv2.dilate(opening, kernel, iterations=4)
 
         self.precessedImg = dilated
+        cv2.imwrite('imageProcess.jpg', opening)
         return dilated
 
     def lookForContours(self, img=None):
@@ -58,7 +58,7 @@ class detectPlanLegend:
             [x, y, w, h] = cv2.boundingRect(contour)
 
             if w+h > (self.img.shape[0] + self.img.shape[1])/id:
-                #cv2.rectangle(legend, (x, y), (x + w, y + h), (255, 0, 255), 3)
+                cv2.rectangle(legend, (x, y), (x + w, y + h), (255, 0, 255), 3)
                 coord_legend.append([x, y, w, h])
 
         if len(coord_legend)<2:
@@ -66,6 +66,7 @@ class detectPlanLegend:
             self.findLegendAndPlan(contours, id=id+0.5)
 
         else :
+            cv2.imwrite('lookForContour.jpg', legend)
             ### Create a XLM file for all possible legend
             CreateXML.createXML(self.path, self.img.shape, coord_legend)
 
