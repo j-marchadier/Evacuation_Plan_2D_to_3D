@@ -3,8 +3,7 @@ import LineDetector
 import ObjectDetection
 import detectPlanLegend
 
-import platform
-print(platform.system())
+#Interface.init()
 # SELECT FILE
 pathfile = Interface.SelectImage()
 

@@ -1,38 +1,39 @@
+<?xml version="1.0" ?>
 <annotation>
 	<folder>plans</folder>
-	<filename>planInternet.jpg</filename>
-	<path>/Users/julienmarchadier/Desktop/Boulot/E4/Evacuation_Plan_2D_to_3D/data/plans/planInternet.jpg</path>
+	<filename>planInternet</filename>
+	<path>/Users/julienmarchadier/Desktop/Boulot/E4/Evacuation_Plan_2D_to_3D//Users/julienmarchadier/Desktop/Boulot/E4/Evacuation_Plan_2D_to_3D/data/plans/planInternet.jpg</path>
 	<source>
 		<database>Unknown</database>
 	</source>
 	<size>
-		<width>2481</width>
-		<height>1754</height>
+		<width>1754</width>
+		<height>2481</height>
 		<depth>3</depth>
 	</size>
 	<segmented>0</segmented>
 	<object>
 		<name>legend</name>
-		<pose>Unspecified</pose>
-		<truncated>0</truncated>
+		<pose>Unspectified</pose>
+		<pose>0</pose>
 		<difficult>0</difficult>
 		<bndbox>
-			<xmin>49</xmin>
-			<ymin>1100</ymin>
-			<xmax>581</xmax>
-			<ymax>1559</ymax>
+			<xmin>1146</xmin>
+			<ymin>1097</ymin>
+			<xmax>2198</xmax>
+			<ymax>1527</ymax>
 		</bndbox>
 	</object>
 	<object>
 		<name>plan</name>
-		<pose>Unspecified</pose>
-		<truncated>0</truncated>
+		<pose>Unspectified</pose>
+		<pose>0</pose>
 		<difficult>0</difficult>
 		<bndbox>
 			<xmin>1146</xmin>
 			<ymin>513</ymin>
-			<xmax>2194</xmax>
-			<ymax>1522</ymax>
+			<xmax>2198</xmax>
+			<ymax>1283</ymax>
 		</bndbox>
 	</object>
 </annotation>
