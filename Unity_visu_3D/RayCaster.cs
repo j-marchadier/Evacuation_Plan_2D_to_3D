@@ -150,13 +150,13 @@ public class RayCaster : MonoBehaviour
                             this.actual_pos = hit.collider.gameObject.GetComponent<MeshRenderer>().bounds.max.x + 1;
 
                             //modif pour plafond
-                            GameObject cube = makeRoof();
+                            /*GameObject cube = makeRoof();
 
                             cube.transform.position = startpoint;
                             Vector3 target = startpoint;
                             target.x = hit.collider.gameObject.GetComponent<MeshRenderer>().bounds.min.x - 1;
 
-                            Utilities.setTarget(cube,target,20,20);
+                            Utilities.setTarget(cube,target,20,20);*/
 
                             break;
                         case -1:
@@ -174,13 +174,13 @@ public class RayCaster : MonoBehaviour
                             this.actual_pos = hit.collider.gameObject.GetComponent<MeshRenderer>().bounds.max.z + 1;
 
                             //modif pour plafond
-                            GameObject cube = makeRoof();
+                            /*GameObject cube = makeRoof();
 
                             cube.transform.position = startpoint;
                             Vector3 target = startpoint;
                             target.z = hit.collider.gameObject.GetComponent<MeshRenderer>().bounds.min.z - 1;
 
-                            Utilities.setTarget(cube, target, 20, 20);
+                            Utilities.setTarget(cube, target, 20, 20);*/
 
                             break;
                         case -1:

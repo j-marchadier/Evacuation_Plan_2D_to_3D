@@ -255,7 +255,24 @@ public static class Utilities
 
     public static string INPUT_FOLDER_NAME = "data";
     public static string OUTPUT_FOLDER_NAME = "data";
+    public static string IMG_FOLDER_NAME = "plans";
+    public static string MAC_PATH = "/../../";
+    public static string WINDOWS_PATH = "/../../";
 
+    public static Texture2D LoadPNG(string filePath)
+    {
+
+        Texture2D tex = null;
+        byte[] fileData;
+
+        if (File.Exists(filePath))
+        {
+            fileData = File.ReadAllBytes(filePath);
+            tex = new Texture2D(2, 2);
+            tex.LoadImage(fileData); //..this will auto-resize the texture dimensions.
+        }
+        return tex;
+    }
     public static List<string> getFilesAt(string path, string ext){
         var info = new DirectoryInfo(path);
         var fileInfo = info.GetFiles(ext);
@@ -272,11 +289,11 @@ public static class Utilities
         string path = Application.dataPath;
         if (Application.platform == RuntimePlatform.OSXPlayer)
         {
-            path += "/../../";
+            path += MAC_PATH;
         }
         else if (Application.platform == RuntimePlatform.WindowsPlayer)
         {
-            path += "/../";
+            path += WINDOWS_PATH;
         }
         return path;
     }
