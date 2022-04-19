@@ -15,7 +15,7 @@ detected = detectPlanLegend.detectPlanLegend(pathfile)
 detected.findLegendAndPlan()
 
 # LABELIZED LOGOS
-detected.findLogos()
+detected.findLogos_bis()
 
 # DETECT LOGOS IN PLAN
 #detected.DetectLogo()  # function qui marche moins bien
