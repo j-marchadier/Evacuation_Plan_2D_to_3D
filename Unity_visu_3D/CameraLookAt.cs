@@ -20,13 +20,18 @@ public class CameraLookAt : MonoBehaviour
     // a camera
 
     public bool cameraInRotationMode = false;
+    public bool making = true;
+    bool oldMakingValue = true;
     public int rotation_direction = 1;
     List<string> file_list;
+    int list_length;
     int file_num;
+    char file_tag = '1';
 
     private void Start()
     {
         file_list = Utilities.getFilesAt(Utilities.getPath() + Utilities.INPUT_FOLDER_NAME + "/", "*_mur.txt");
+        list_length = file_list.Count;
         file_num = 0;
         updateView();
         // move teh current object to the center of the object in the file
@@ -38,7 +43,24 @@ public class CameraLookAt : MonoBehaviour
 
     public void updateView()
     {
+        if(making != oldMakingValue)
+        {
+            oldMakingValue = making;
+            if (making)
+                file_list = Utilities.getFilesAt(Utilities.getPath() + Utilities.INPUT_FOLDER_NAME + "/", file_tag + "_mur.txt");
+            else
+                file_list = Utilities.getFilesAt(Utilities.getPath() + Utilities.INPUT_FOLDER_NAME + "/", "prefab*.txt");
+            list_length = file_list.Count;
+            file_num = 0;
+        }
+
         string file = file_list[file_num];
+        if (!making)
+        {
+            string f = file.Split('.')[file.Split('.').Length - 2];
+            file_tag = f[f.Length - 1];
+            file = Utilities.getFilesAt(Utilities.getPath() + Utilities.INPUT_FOLDER_NAME + "/", file_tag + "_mur.txt")[0];
+        }
         rf = new Readfile(file, "walls");
         rf.read();
         // read a "wall" file to get all of the values
@@ -46,10 +68,11 @@ public class CameraLookAt : MonoBehaviour
     }
     void Update()
     {
+        
         if (Input.GetKeyDown(Utilities.CYCLE_RIGHT)) 
         {
             file_num += 1;
-            if(file_num > file_list.Count - 1)
+            if(file_num >= list_length)
             {
                 file_num = 0;
             }
@@ -60,7 +83,7 @@ public class CameraLookAt : MonoBehaviour
             file_num -= 1;
             if (file_num < 0)
             {
-                file_num = file_list.Count - 1;
+                file_num = list_length - 1;
             }
             updateView();
         }
@@ -91,5 +114,10 @@ public class CameraLookAt : MonoBehaviour
 
     public void invertRotation(){
         this.rotation_direction = -this.rotation_direction;
+    }
+
+    public void setMaking(bool value)
+    {
+        making = value;
     }
 }

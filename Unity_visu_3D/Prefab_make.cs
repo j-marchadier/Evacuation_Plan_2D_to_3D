@@ -12,8 +12,6 @@ public class Prefab_make
 
     public bool hide_roof;
     // hide the roof true/false
-    bool old_hide_value;
-    // old "hide the roof" value for comparison purposes
 
     float wallSize;
     // size of the walls
@@ -63,9 +61,6 @@ public class Prefab_make
     GameObject rayMaker;
     // raymaker object to find exterior walls and place roofs / floors
 
-    GameObject cube_roof_center;
-    GameObject cube_floor_center;
-
     public Prefab_make()
     // make a prefab
     {
@@ -92,9 +87,6 @@ public class Prefab_make
         // set basic wall size, width, and floor size
 
 
-        old_hide_value = hide_roof;
-        // get the old hide roof value
-
         just_switched = true;
         // we just switched to making mode
         mesh_made = false;
@@ -107,19 +99,19 @@ public class Prefab_make
         if (just_switched)
         // if we just switched to making mode (or to a new "walls" file)
         {
-            this.rayMaker = new GameObject();
-            this.rayMaker.AddComponent<RayCaster>();
+            //this.rayMaker = new GameObject();
+            //this.rayMaker.AddComponent<RayCaster>();
             // recreate the raymaker and give it the script
             createMesh();
             // create the current mesh
             just_switched = false;
             // get out of the "just switched" state
         }
-        if (!mesh_made && this.rayMaker.GetComponent<RayCaster>().OpIsDone())
+        if (!mesh_made)// && this.rayMaker.GetComponent<RayCaster>().OpIsDone())
         // if the mesh is not made yet, and the operation of the raymaker is done
         {
             mesh_made = true; // the mesh is now made
-            GameObject.Destroy(this.rayMaker); // destroy the raymaker
+            //GameObject.Destroy(this.rayMaker); // destroy the raymaker
         }
         else if (mesh_made)
         // if the mesh is made
@@ -171,6 +163,7 @@ public class Prefab_make
                 {
                     nFile = 0; // go back to the start if going too far
                 }
+                clear();
                 mesh_made = false; // mesh is not made anymore
                 just_switched = true; // we just switched
             }
@@ -183,6 +176,7 @@ public class Prefab_make
                 {
                     nFile = filelist_walls.Count - 1;// go back to the end if going too far
                 }
+                clear();
                 mesh_made = false; // mesh is not made anymore
                 just_switched = true;// we just switched
             }
@@ -223,14 +217,22 @@ public class Prefab_make
         GameObject[] floors = GameObject.FindGameObjectsWithTag(Utilities.TAG_FLOOR);
         // get all floors
         // update position and size
-        if (old_hide_value != hide_roof)
-        // if we pressed the "hide roof" button
+        foreach (GameObject floor in floors)
+        // for all walls
         {
-            if (hide_roof) cube_roof_center.GetComponent<MeshRenderer>().enabled = false; // disable the floor renderer
-            else cube_roof_center.GetComponent<MeshRenderer>().enabled = true; // enable the floor renderer
+            floor.transform.localScale = new Vector3(floor.transform.localScale.x + changeWidth, floor.transform.localScale.y + changeSize, floor.transform.localScale.z);
+            // update the size and width
         }
 
-        old_hide_value = hide_roof; // update the hide roof value
+        GameObject[] roofs = GameObject.FindGameObjectsWithTag(Utilities.TAG_ROOF);
+        foreach (GameObject roof in roofs)
+        // for all walls
+        {
+            roof.transform.localScale = new Vector3(roof.transform.localScale.x + changeWidth, roof.transform.localScale.y + changeSize, roof.transform.localScale.z);
+            // update the size and width
+            if (hide_roof) roof.GetComponent<MeshRenderer>().enabled = false; // disable the floor renderer
+            else roof.GetComponent<MeshRenderer>().enabled = true; // enable the floor renderer
+        }
 
         previousWallSize = currentWallSize;
         previousWallWidth = currentWallWidth;
@@ -289,31 +291,33 @@ public class Prefab_make
     private void make_roof_floor()
     // make roofs / floors
     {
-        float maxX = -rf.minX;
-        float minX = -rf.maxX;
+        float maxX = rf.minX;
+        float minX = rf.maxX;
         float maxZ = rf.maxZ;
         float minZ = rf.minZ;
         // get extreme values for this file
 
-        this.rayMaker.GetComponent<RayCaster>().setVal(minX, maxX, minZ, maxZ);
+       // this.rayMaker.GetComponent<RayCaster>().setVal(minX, maxX, minZ, maxZ);
         // set the values in the raymaker and start the recognition of external walls
 
         float meanX = (minX + maxX) / 2;
         float meanZ = (minZ + maxZ) / 2;
 
-        cube_floor_center = GameObject.CreatePrimitive(PrimitiveType.Cube);
-
+        GameObject cube_floor_center = Utilities.createCube(Utilities.TAG_FLOOR);
         cube_floor_center.transform.parent = container.transform;
 
-        cube_roof_center = GameObject.CreatePrimitive(PrimitiveType.Cube);
-
+        GameObject cube_roof_center = Utilities.createCube(Utilities.TAG_ROOF);
         cube_roof_center.transform.parent = container.transform;
+        cube_roof_center.GetComponent<MeshRenderer>().enabled = hide_roof;
 
-        cube_floor_center.transform.position = new Vector3(meanX, -wallSize / 2, meanZ);
-        cube_roof_center.transform.position = new Vector3(meanX, wallSize / 2, meanZ);
+        cube_floor_center.transform.position = new Vector3(-meanX, -wallSize / 2, meanZ);
+        cube_roof_center.transform.position = new Vector3(-meanX, wallSize / 2, meanZ);
 
         cube_floor_center.transform.localScale = new Vector3(meanX * 2 - adjustFloorSize, 1, meanZ * 2 - adjustFloorSize);
         cube_roof_center.transform.localScale = new Vector3(meanX * 2 - adjustFloorSize, 1, meanZ * 2 - adjustFloorSize);
+
+        //Mesh _mesh = cube_floor_center.GetComponent<MeshFilter>().mesh;
+        //Vector3[] normals
 
     }
 

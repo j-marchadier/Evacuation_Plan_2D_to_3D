@@ -19,6 +19,11 @@ public static class Utilities
         go.GetComponent<MeshRenderer>().material = (Material)Resources.Load("Materials/" + mat, typeof(Material));
     }
 
+    public static void loadImg(GameObject go, string str)
+    {
+        go.GetComponent<Renderer>().material.mainTexture = LoadPNG(str);
+    }
+
     public static string getMatfromTag(string tag){
 
         if(tag == TAG_WALL){
@@ -181,7 +186,7 @@ public static class Utilities
     /*     SAVE/LOAD PREFABS     */
 
     public static void savePrefab(GameObject go, int tag){
-        string filepath = getPath() + OUTPUT_FOLDER_NAME +  "/prefab_" + tag + "_mur.txt";
+        string filepath = getPath() + OUTPUT_FOLDER_NAME +  "/prefab_" + tag + ".txt";
         if(File.Exists(filepath))
             File.Delete(filepath);
 
@@ -240,8 +245,11 @@ public static class Utilities
             cube.transform.eulerAngles = rot;
             cube.transform.localScale = scale;
             cube.GetComponent<MeshRenderer>().enabled = enabool;
-
-            loadMaterial(cube,getMatfromTag(tag));
+            string mat = getMatfromTag(tag);
+            if (tag == TAG_FLOOR)
+                loadImg(cube, getPath()+ INPUT_FOLDER_NAME+ '/' + IMG_FOLDER_NAME + "/plan.jpg");
+            else
+                loadMaterial(cube, getMatfromTag(tag));
 
             childToParent(cube,collector);
         }
@@ -271,8 +279,20 @@ public static class Utilities
             tex = new Texture2D(2, 2);
             tex.LoadImage(fileData); //..this will auto-resize the texture dimensions.
         }
+
+        tex = FlipTexture(tex);
         return tex;
     }
+
+    public static Texture2D FlipTexture(Texture2D texture)
+    {
+        Color[] pixels = texture.GetPixels();
+        Array.Reverse(pixels);
+        texture.SetPixels(pixels);
+        return texture;
+    }
+
+
     public static List<string> getFilesAt(string path, string ext){
         var info = new DirectoryInfo(path);
         var fileInfo = info.GetFiles(ext);
