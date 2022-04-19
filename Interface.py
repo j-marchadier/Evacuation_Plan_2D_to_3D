@@ -2,9 +2,13 @@ from os import system
 import os
 from tkinter import filedialog
 from sys import platform
+import subprocess
 
 def init():
-    system("pyrcc5 -o labelImgmaster/libs/resources.py labelImgmaster/resources.qrc")
+    if platform == "linux" or platform == "linux2" or platform == "darwin":
+        system("pyrcc5 -o labelImgmaster/libs/resources.py labelImgmaster/resources.qrc")
+    else :
+        system("pyrcc5 -o labelImgmaster/libs/resources.py labelImgmaster/resources.qrc")
 
 def SelectImage():
     img_path = filedialog.askopenfilename(initialdir=os.getcwd())
@@ -21,7 +25,8 @@ def startApplication():
         system("chmod 777 wallmaker_macos.app/Contents/MacOS/wallmake")
         system("./wallmaker_macos.app/Contents/MacOS/wallmake")
     else:
-        system("start wallmaker_windows\wallmake.exe")
+        p = subprocess.Popen('start wallmaker_windows\wallmake.exe')
+        p.wait()
 
 
 def delLogos():

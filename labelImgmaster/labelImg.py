@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import argparse
 import codecs
+from fileinput import close
 import os.path
 import platform
 import shutil
@@ -227,7 +228,7 @@ class MainWindow(QMainWindow, WindowMixin):
                                  'Ctrl+Shift+O', 'open', get_str('openAnnotationDetail'))
         copy_prev_bounding = action(get_str('copyPrevBounding'), self.copy_previous_bounding_boxes, 'Ctrl+v', 'copy', get_str('copyPrevBounding'))
 
-        open_next_image = action(get_str('nextImg'), self.open_next_image,
+        open_next_image = action(get_str('nextImg'), self.save_file,
                                  'd', 'next', get_str('nextImgDetail'))
 
         open_prev_image = action(get_str('prevImg'), self.open_prev_image,
@@ -237,7 +238,7 @@ class MainWindow(QMainWindow, WindowMixin):
                         'space', 'verify', get_str('verifyImgDetail'))
 
         save = action(get_str('save'), self.save_file,
-                      'Ctrl+S', 'save', get_str('saveDetail'), enabled=False)
+                      'Ctrl+S', 'save', get_str('saveDetail'), enabled=True)
 
         def get_format_meta(format):
             """
@@ -377,10 +378,10 @@ class MainWindow(QMainWindow, WindowMixin):
                               onShapesPresent=(save_as, hide_all, show_all))
 
         self.menus = Struct(
-            file=self.menu(get_str('menu_file')),
-            edit=self.menu(get_str('menu_edit')),
-            view=self.menu(get_str('menu_view')),
-            help=self.menu(get_str('menu_help')),
+            #file=self.menu(get_str('menu_file')),
+            #edit=self.menu(get_str('menu_edit')),
+            #view=self.menu(get_str('menu_view')),
+            #help=self.menu(get_str('menu_help')),
             recentFiles=QMenu(get_str('menu_openRecent')),
             labelList=label_menu)
 
@@ -401,19 +402,19 @@ class MainWindow(QMainWindow, WindowMixin):
         self.display_label_option.setChecked(settings.get(SETTING_PAINT_LABEL, False))
         self.display_label_option.triggered.connect(self.toggle_paint_labels_option)
 
-        add_actions(self.menus.file,
-                    (open, open_dir, change_save_dir, open_annotation, copy_prev_bounding, self.menus.recentFiles, save, save_format, save_as, close, reset_all, delete_image, quit))
-        add_actions(self.menus.help, (help_default, show_info, show_shortcut))
-        add_actions(self.menus.view, (
-            self.auto_saving,
-            self.single_class_mode,
-            self.display_label_option,
-            labels, advanced_mode, None,
-            hide_all, show_all, None,
-            zoom_in, zoom_out, zoom_org, None,
-            fit_window, fit_width))
+        #add_actions(self.menus.file,
+        #            (open, open_dir, change_save_dir, open_annotation, copy_prev_bounding, self.menus.recentFiles, save, save_format, save_as, close, reset_all, delete_image, quit))
+        #add_actions(self.menus.help, (help_default, show_info, show_shortcut))
+        #add_actions(self.menus.view, (
+        #    self.auto_saving,
+        #    self.single_class_mode,
+        #    self.display_label_option,
+        #    labels, advanced_mode, None,
+        #    hide_all, show_all, None,
+        #    zoom_in, zoom_out, zoom_org, None,
+        #    fit_window, fit_width))
 
-        self.menus.file.aboutToShow.connect(self.update_file_menu)
+        #self.menus.file.aboutToShow.connect(self.update_file_menu)
 
         # Custom context menu for the canvas widget:
         add_actions(self.canvas.menus[0], self.actions.beginnerContext)
@@ -423,7 +424,13 @@ class MainWindow(QMainWindow, WindowMixin):
 
         self.tools = self.toolbar('Tools')
         self.actions.beginner = (
-            open, open_dir, change_save_dir, open_next_image, open_prev_image, verify, save, save_format, None, create, copy, delete, None,
+            #open, 
+            #open_dir, change_save_dir, 
+            open_next_image, 
+            #open_prev_image, verify, 
+            #save, 
+            #save_format, 
+            None, create, copy, delete, None,
             zoom_in, zoom, zoom_out, fit_window, fit_width)
 
         self.actions.advanced = (
@@ -575,10 +582,10 @@ class MainWindow(QMainWindow, WindowMixin):
         add_actions(self.tools, tool)
         self.canvas.menus[0].clear()
         add_actions(self.canvas.menus[0], menu)
-        self.menus.edit.clear()
+        #self.menus.edit.clear()
         actions = (self.actions.create,) if self.beginner()\
             else (self.actions.createMode, self.actions.editMode)
-        add_actions(self.menus.edit, actions + self.actions.editMenu)
+        #add_actions(self.menus.edit, actions + self.actions.editMenu)
 
     def set_beginner(self):
         self.tools.clear()
@@ -589,12 +596,12 @@ class MainWindow(QMainWindow, WindowMixin):
         add_actions(self.tools, self.actions.advanced)
 
     def set_dirty(self):
-        self.dirty = True
+        self.dirty = False
         self.actions.save.setEnabled(True)
 
     def set_clean(self):
         self.dirty = False
-        self.actions.save.setEnabled(False)
+        self.actions.save.setEnabled(True)
         self.actions.create.setEnabled(True)
 
     def toggle_actions(self, value=True):
@@ -1262,7 +1269,7 @@ class MainWindow(QMainWindow, WindowMixin):
                                      ('Change saved folder', self.default_save_dir))
         self.statusBar().show()
 
-    def open_annotation_dialog(self, _value=False):
+    def open_annotation_dialog(self, _value=False, file=None):
         if self.file_path is None:
             self.statusBar().showMessage('Please select image first')
             self.statusBar().show()
@@ -1356,6 +1363,7 @@ class MainWindow(QMainWindow, WindowMixin):
 
     def open_next_image(self, _value=False):
         # Proceeding next image without dialog if having any label
+
         if self.auto_saving.isChecked():
             if self.default_save_dir is not None:
                 if self.dirty is True:
@@ -1413,6 +1421,8 @@ class MainWindow(QMainWindow, WindowMixin):
             saved_path = os.path.join(image_file_dir, saved_file_name)
             self._save_file(saved_path if self.label_file
                             else self.save_file_dialog(remove_ext=False))
+        self.close()
+        
 
     def save_file_as(self, _value=False):
         assert not self.image.isNull(), "cannot save empty image"
@@ -1654,4 +1664,6 @@ def main():
     return app.exec_()
 
 if __name__ == '__main__':
+    print("a")
     sys.exit(main())
+    

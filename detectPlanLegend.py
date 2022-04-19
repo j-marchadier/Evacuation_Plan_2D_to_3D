@@ -58,7 +58,7 @@ class detectPlanLegend:
             [x, y, w, h] = cv2.boundingRect(contour)
 
             if w+h > (self.img.shape[0] + self.img.shape[1])/id:
-                cv2.rectangle(legend, (x, y), (x + w, y + h), (255, 0, 255), 3)
+                #cv2.rectangle(legend, (x, y), (x + w, y + h), (255, 0, 255), 3)
                 coord_legend.append([x, y, w, h])
 
         if len(coord_legend)<2:
@@ -66,7 +66,8 @@ class detectPlanLegend:
             self.findLegendAndPlan(contours, id=id+0.5)
 
         else :
-            cv2.imwrite('lookForContour.jpg', legend)
+            coord_legend = coord_legend[0:2]
+            #cv2.imwrite('lookForContour.jpg', legend)
             ### Create a XLM file for all possible legend
             CreateXML.createXML(self.path, self.img.shape, coord_legend)
 
@@ -83,10 +84,10 @@ class detectPlanLegend:
 
         return
 
-    def findLogos(self, filepath=None):
+    def findLogos(self, filepath=None, id = 1.5):
         Interface.delLogos()
         if filepath is None : filepath = self.path.replace(self.path.split("/")[-1],"legend.jpg")
-        print(filepath)
+
         legend = cv2.imread(filepath)
         legend_processed = self.imageProcess(legend,threshLvl=70)
 
@@ -97,12 +98,14 @@ class detectPlanLegend:
 
         for contour in contours:
             [x, y, w, h] = cv2.boundingRect(contour)
-            if w+h < (legend.shape[0] + legend.shape[1])/3:
+            if w+h < (legend.shape[0] + legend.shape[1])/id:
                 #cv2.rectangle(legend, (x, y), (x + w, y + h), (255, 0, 255), 3)
                 coord_legend.append([x, y, w, h])
 
         if not coord_legend:
-            print("NO LOGOS FIND")
+            print("NO LOGOS FIND, RETRY...")
+            self.findLogos(filepath,id=id+0.5)
+
             #return
 
         ### Create a XLM file for all possible legend
