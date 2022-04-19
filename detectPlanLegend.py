@@ -3,6 +3,8 @@ import numpy as np
 import CreateXML
 import Interface
 import glob
+import easyocr
+
 
 
 # Detection du plan et de la legend
@@ -18,6 +20,7 @@ class detectPlanLegend:
         self.precessedImg = 0
 
     def imageProcess(self, img=None,threshLvl=30):
+
         if img is None: img = self.img
         # Load image, grayscale, Gaussian blur, adaptive threshold
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -41,6 +44,7 @@ class detectPlanLegend:
         return dilated
 
     def lookForContours(self, img=None):
+
         if img is None: img = self.imageProcess()
 
         # Find all contour in img
@@ -48,6 +52,7 @@ class detectPlanLegend:
         return contours
 
     def findLegendAndPlan(self, contours=None,id=1.5):
+
         if contours is None: contours = self.lookForContours()
 
         legend = self.img
@@ -84,7 +89,10 @@ class detectPlanLegend:
 
         return
 
+
+
     def findLogos(self, filepath=None, id = 1.5):
+
         Interface.delLogos()
         if filepath is None : filepath = self.path.replace(self.path.split("/")[-1],"legend.jpg")
 
@@ -122,6 +130,113 @@ class detectPlanLegend:
 
         return
 
+
+
+    def dominant_color(img):
+  
+        NUM_CLUSTERS = 5
+
+        ar = np.asarray(img)
+        shape = ar.shape
+        ar = ar.reshape(scipy.product(shape[:2]), shape[2]).astype(float)
+
+        codes, dist = scipy.cluster.vq.kmeans(ar, NUM_CLUSTERS)
+
+        vecs, dist = scipy.cluster.vq.vq(ar, codes)         # assign codes
+        counts, bins = scipy.histogram(vecs, len(codes))    # count occurrences
+
+        index_max = scipy.argmax(counts)                    # find most frequent
+        peak = codes[index_max]
+          
+        return peak
+
+
+
+    def only_picto(self, img_path=None):
+
+        Interface.delLogos()
+        if img_path is None : img_path = self.path.replace(self.path.split("/")[-1],"legend.jpg")
+
+        ###### On supprime le texte de l'image ######
+
+        img = cv2.imread(img_path)
+
+        reader = easyocr.Reader(['en'])
+        result = reader.readtext(img_path)
+
+        if result == []:
+            print('No text detected')
+            return img
+
+        top_left = tuple(result[0][0][0])
+        bottom_right = tuple(result[0][0][2])
+
+        main_color = self.dominant_color(img)
+
+        for detection in result: 
+            top_left = tuple(detection[0][0])
+            bottom_right = tuple(detection[0][2])
+
+            img = cv2.rectangle(img,top_left,bottom_right,main_color,-1)
+
+        return img
+
+
+
+    def findLogos_bis(self, img_path=None, inf=.7, sup=.9):
+
+        Interface.delLogos()
+        if img_path is None : img_path = self.path.replace(self.path.split("/")[-1],"legend.jpg")
+
+        # img = self.only_picto(img_path)
+        img = cv2.imread(img_path)
+
+        ###### On récupère les coordonnées des pictogrammes ######
+
+        edges = cv2.Canny(img,100,200)
+        coord_picto = []
+        list_rad = []
+
+        contours,_ = cv2.findContours(edges, 1, 2)
+
+        for cnt in contours:
+            (x,y),radius = cv2.minEnclosingCircle(cnt)
+            radius = int(radius)
+            list_rad.append(radius)
+
+        # Création de quantiles pour réduire le nombre de tâches détectées qui ne correspondent pas à des logos
+        Qinf = int(np.quantile(list_rad, inf))
+        Qsup = int(np.quantile(list_rad, sup))
+
+        for cnt in contours:
+            (x_center,y_center),radius = cv2.minEnclosingCircle(cnt)
+            radius = int(radius)
+
+            x = int(x_center) - radius
+            y = int(y_center) - radius
+            w = 2*radius
+            h = w
+
+            if (Qinf < radius < Qsup+1):
+                coord_picto.append([x, y, w, h])
+
+        ### Create a XLM file for all possible legends
+
+        CreateXML.createXML(img_path, img, coord_picto)
+
+        # Start Inteface to change an perform Plan and legend
+        Interface.OpenLabelImg(img_path)
+        coord_logos = CreateXML.readLogosXML(img_path)
+
+        Interface.createLogos()
+
+        for l,i in zip(coord_logos,range(len(coord_logos))):
+            cv2.imwrite('data/logos/logo_'+str(i)+'.jpg', img[l[1]:l[3],l[0]:l[2]])
+
+        return
+
+        
+
     # Clean logos variations
     def clear_coord_logos(self,coord):
         coord_traiten = []
@@ -140,6 +255,7 @@ class detectPlanLegend:
                 coord_traiten.append(type2[weight > 6].tolist())
 
         return coord_traiten
+
 
     def DetectLogo(self):
         img_rgb = cv2.imread(self.path.replace(self.path.split("/")[-1],"plan.jpg"))
