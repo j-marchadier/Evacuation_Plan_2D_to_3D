@@ -3,6 +3,9 @@ import numpy as np
 import CreateXML
 import Interface
 import glob
+import scipy
+import scipy.misc
+import scipy.cluster
 import easyocr
 
 
@@ -161,7 +164,7 @@ class detectPlanLegend:
 
         img = cv2.imread(img_path)
 
-        reader = easyocr.Reader(['en'])
+        reader = easyocr.Reader(['en','fr'])
         result = reader.readtext(img_path)
 
         if result == []:
