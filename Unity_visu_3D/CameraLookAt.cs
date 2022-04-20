@@ -43,24 +43,28 @@ public class CameraLookAt : MonoBehaviour
 
     public void updateView()
     {
-        if(making != oldMakingValue)
+        /*if(making != oldMakingValue)
         {
             oldMakingValue = making;
             if (making)
-                file_list = Utilities.getFilesAt(Utilities.getPath() + Utilities.INPUT_FOLDER_NAME + "/", file_tag + "_mur.txt");
-            else
-                file_list = Utilities.getFilesAt(Utilities.getPath() + Utilities.INPUT_FOLDER_NAME + "/", "prefab*.txt");
+                file_list = Utilities.getFilesAt(Utilities.getPath() + Utilities.INPUT_FOLDER_NAME + "/", this.file_tag + "_mur.txt");
             list_length = file_list.Count;
-            file_num = 0;
-        }
+        }*/
 
         string file = file_list[file_num];
         if (!making)
         {
-            string f = file.Split('.')[file.Split('.').Length - 2];
-            file_tag = f[f.Length - 1];
-            file = Utilities.getFilesAt(Utilities.getPath() + Utilities.INPUT_FOLDER_NAME + "/", file_tag + "_mur.txt")[0];
+            file_list = Utilities.getFilesAt(Utilities.getPath() + Utilities.INPUT_FOLDER_NAME + "/", "prefab*.txt");
+            string test_file = file_list[0];
+            string[] f = file.Split('/');
+            string file_name = f[f.Length - 1];
+            string[] test = file_name.Split('_', '.');
+
+            file_num = int.Parse(test[1]) - 1;
         }
+        file_list = Utilities.getFilesAt(Utilities.getPath() + Utilities.INPUT_FOLDER_NAME + "/", this.file_tag + "_mur.txt");
+        list_length = file_list.Count;
+        file = file_list[file_num];
         rf = new Readfile(file, "walls");
         rf.read();
         // read a "wall" file to get all of the values
@@ -85,6 +89,10 @@ public class CameraLookAt : MonoBehaviour
             {
                 file_num = list_length - 1;
             }
+            updateView();
+        }
+        else if (Input.GetKeyDown(Utilities.VISU_PREFAB_MODE))
+        {
             updateView();
         }
         float inputX = 0;
