@@ -25,7 +25,7 @@ def startApplication():
         system("chmod 777 wallmaker_macos.app/Contents/MacOS/wallmake")
         system("./wallmaker_macos.app/Contents/MacOS/wallmake")
     else:
-        p = subprocess.Popen('start wallmaker_windows\wallmake.exe')
+        p = subprocess.Popen('wallmaker_windows\wallmake.exe')
         p.wait()
 
 
