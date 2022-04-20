@@ -5,4 +5,8 @@ elementpath
 pyqt5
 tk
 subprocess.run
+<<<<<<< HEAD:requirements.txt
 easyocr
+=======
+scipy
+>>>>>>> 9129d0173ce3d5868fb731b0e729f57c8f3d634c:requierement.txt

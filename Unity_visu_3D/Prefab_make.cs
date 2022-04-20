@@ -61,6 +61,8 @@ public class Prefab_make
     GameObject rayMaker;
     // raymaker object to find exterior walls and place roofs / floors
 
+    Texture2D floor_mat;
+
     public Prefab_make()
     // make a prefab
     {
@@ -91,6 +93,9 @@ public class Prefab_make
         // we just switched to making mode
         mesh_made = false;
         // so the mesh is not made yet
+
+        floor_mat = Utilities.LoadPNG(Utilities.getPath() + Utilities.INPUT_FOLDER_NAME + '/' + Utilities.IMG_FOLDER_NAME + "/plan.jpg");
+        
     }
 
     public void update_make()
@@ -185,6 +190,7 @@ public class Prefab_make
             {
                 Utilities.savePrefab(container, int.Parse(fileTag+""));
                 //registerPrefab(); // save a prefab
+                GameObject.FindGameObjectWithTag(Utilities.TAG_ROTATION).GetComponent<CameraLookAt>().updatePrefabList();
             }
 
             updateMesh(); // update the mesh
@@ -220,16 +226,18 @@ public class Prefab_make
         foreach (GameObject floor in floors)
         // for all walls
         {
-            floor.transform.localScale = new Vector3(floor.transform.localScale.x + changeWidth, floor.transform.localScale.y + changeSize, floor.transform.localScale.z);
+            floor.transform.localScale = new Vector3(floor.transform.localScale.x, floor.transform.localScale.y, floor.transform.localScale.z + changeFloorSize);
             // update the size and width
+            floor.transform.position = new Vector3(floor.transform.position.x, floor.transform.position.y - changeSize/2, floor.transform.position.z);
         }
 
         GameObject[] roofs = GameObject.FindGameObjectsWithTag(Utilities.TAG_ROOF);
         foreach (GameObject roof in roofs)
         // for all walls
         {
-            roof.transform.localScale = new Vector3(roof.transform.localScale.x + changeWidth, roof.transform.localScale.y + changeSize, roof.transform.localScale.z);
+            roof.transform.localScale = new Vector3(roof.transform.localScale.x, roof.transform.localScale.y, roof.transform.localScale.z + changeFloorSize);
             // update the size and width
+            roof.transform.position = new Vector3(roof.transform.position.x, roof.transform.position.y + changeSize / 2, roof.transform.position.z);
             if (hide_roof) roof.GetComponent<MeshRenderer>().enabled = false; // disable the floor renderer
             else roof.GetComponent<MeshRenderer>().enabled = true; // enable the floor renderer
         }
@@ -281,11 +289,19 @@ public class Prefab_make
         make_roof_floor();
         // make the roofs and floors
 
-
+        
         previousWallSize = wallSize;
         previousWallWidth = wallWidth;
         previousFloorSize = adjustFloorSize;
         // update all previous values
+    }
+
+    public void loadtext(GameObject obj)
+    {
+        if (obj.tag == Utilities.TAG_FLOOR)
+            Utilities.loadImg(obj, Utilities.getPath() + Utilities.INPUT_FOLDER_NAME + '/' + Utilities.IMG_FOLDER_NAME + "/plan.jpg");
+        else
+            Utilities.loadMaterial(obj, Utilities.getMatfromTag(obj.tag));
     }
 
     private void make_roof_floor()
@@ -305,9 +321,11 @@ public class Prefab_make
 
         GameObject cube_floor_center = Utilities.createCube(Utilities.TAG_FLOOR);
         cube_floor_center.transform.parent = container.transform;
+        cube_floor_center.GetComponent<Renderer>().material.mainTexture = floor_mat;
 
         GameObject cube_roof_center = Utilities.createCube(Utilities.TAG_ROOF);
         cube_roof_center.transform.parent = container.transform;
+        //loadtext(cube_roof_center);
         cube_roof_center.GetComponent<MeshRenderer>().enabled = hide_roof;
 
         cube_floor_center.transform.position = new Vector3(-meanX, -wallSize / 2, meanZ);

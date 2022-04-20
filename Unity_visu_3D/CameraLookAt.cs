@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,13 +6,6 @@ using System.IO;
 
 public class CameraLookAt : MonoBehaviour
 {
-    [SerializeField]
-    float speedX = 5;
-    // x speed of camera
-
-    float speedY = 5;
-    // y speed of camera
-
     Readfile rf;
     // a file reader
 
@@ -20,73 +14,117 @@ public class CameraLookAt : MonoBehaviour
     // a camera
 
     public bool cameraInRotationMode = false;
-    public bool making = true;
-    bool oldMakingValue = true;
     public int rotation_direction = 1;
-    List<string> file_list;
-    int list_length;
-    int file_num;
-    char file_tag = '1';
+
+    List<string> file_list_w;
+    List<string> file_list_p;
+    int wfile_num;
+    int pfile_num;
+
+    public bool making = true;
+
+
 
     private void Start()
     {
-        file_list = Utilities.getFilesAt(Utilities.getPath() + Utilities.INPUT_FOLDER_NAME + "/", "*_mur.txt");
-        list_length = file_list.Count;
-        file_num = 0;
-        updateView();
+        initAll();
         // move teh current object to the center of the object in the file
         Utilities.childToParent(_camera,this.gameObject);
         // move the camera to the object
         _camera.GetComponent<Camera>().farClipPlane = Utilities.farClipPlane;
         // set camera render distance
+
+        setCamView();
     }
 
-    public void updateView()
-    {
-        if(making != oldMakingValue)
+    private void initAll(){
+        file_list_w = Utilities.getFilesAt(Utilities.getPath() + Utilities.INPUT_FOLDER_NAME + "/", "*_mur.txt");
+        file_list_p = Utilities.getFilesAt(Utilities.getPath() + Utilities.INPUT_FOLDER_NAME + "/", "prefab*.txt");
+        pfile_num = 0;
+        wfile_num = 0;
+    }
+
+    public string prefabFileToWallFile(string file){
+        string outfile = file;
+        string filename = outfile.Split('/')[outfile.Split('/').Length - 1]; // name + extension
+        int tfTag = int.Parse(filename.Split('_', '.')[1]); // tag in a prefab file 'prefab_1.txt'
+
+        foreach (string f in file_list_w)
         {
-            oldMakingValue = making;
-            if (making)
-                file_list = Utilities.getFilesAt(Utilities.getPath() + Utilities.INPUT_FOLDER_NAME + "/", file_tag + "_mur.txt");
-            else
-                file_list = Utilities.getFilesAt(Utilities.getPath() + Utilities.INPUT_FOLDER_NAME + "/", "prefab*.txt");
-            list_length = file_list.Count;
-            file_num = 0;
+            string wfilename = f.Split('/')[f.Split('/').Length - 1]; // name + extension
+            int wfTag = int.Parse(wfilename.Split('_')[0]); // tag in a walls file '1_mur.txt'
+            outfile =  f;
+            if (wfTag == tfTag)
+                break;
+
         }
 
-        string file = file_list[file_num];
-        if (!making)
-        {
-            string f = file.Split('.')[file.Split('.').Length - 2];
-            file_tag = f[f.Length - 1];
-            file = Utilities.getFilesAt(Utilities.getPath() + Utilities.INPUT_FOLDER_NAME + "/", file_tag + "_mur.txt")[0];
+        return outfile;
+    }
+
+    public void setCamView()
+    {
+        string targetFile = file_list_w[wfile_num] ;
+        if(!making){
+            string pfile = file_list_p[pfile_num];
+            targetFile = prefabFileToWallFile(pfile);
         }
-        rf = new Readfile(file, "walls");
-        rf.read();
-        // read a "wall" file to get all of the values
+
+        rf = new Readfile(targetFile, "walls");
+        rf.read(); // read a "wall" file to get all of the values
         transform.position = new Vector3(-rf.meanX, 0, rf.meanZ);
     }
+
+    public void cycleInDir(int i){
+
+        if(making){ // if in make mode
+            wfile_num += i;
+            if (wfile_num >= file_list_w.Count)
+            {
+                wfile_num = 0;
+            }
+            if(wfile_num < 0){
+                wfile_num = file_list_w.Count - 1;
+            }
+        }
+        else{
+            pfile_num += i;
+            if (pfile_num >= file_list_p.Count)
+            {
+                pfile_num = 0;
+            }
+            if (pfile_num < 0)
+            {
+                pfile_num = file_list_p.Count - 1;
+            }
+        }
+
+        setCamView();
+
+    }
+
     void Update()
     {
-        
-        if (Input.GetKeyDown(Utilities.CYCLE_RIGHT)) 
+        if (Input.GetKeyDown(Utilities.CYCLE_RIGHT))
         {
-            file_num += 1;
-            if(file_num >= list_length)
-            {
-                file_num = 0;
-            }
-            updateView();
+            cycleInDir(1);
         }
-        else if (Input.GetKeyDown(Utilities.CYCLE_LEFT)) 
+        else if (Input.GetKeyDown(Utilities.CYCLE_LEFT))
         {
-            file_num -= 1;
-            if (file_num < 0)
-            {
-                file_num = list_length - 1;
-            }
-            updateView();
+            cycleInDir(-1);
         }
+        else if (Input.GetKeyDown(Utilities.VISU_PREFAB_MODE))
+        {
+            making = false;
+            pfile_num = 0;
+            setCamView();
+        }
+        else if(Input.GetKeyDown(Utilities.MAKE_PREFAB_MODE))
+        {
+            making = true;
+            setCamView();
+        }
+
         float inputX = 0;
         if(!this.cameraInRotationMode)
             inputX = Input.GetAxisRaw("Mouse X");
@@ -96,8 +134,8 @@ public class CameraLookAt : MonoBehaviour
         float inputY = Input.GetAxisRaw("Mouse Y");
         // get mouse movements on Y axis
 
-        transform.Rotate(-inputY * Vector3.right * speedY, Space.Self);
-        transform.Rotate(inputX * Vector3.up * speedX, Space.World);
+        transform.Rotate(-inputY * Vector3.right * Utilities.camera_speed_y, Space.Self);
+        transform.Rotate(inputX * Vector3.up * Utilities.camera_speed_x, Space.World);
         // move the camera around the current object
 
         _camera.transform.LookAt(transform.position);
@@ -105,7 +143,7 @@ public class CameraLookAt : MonoBehaviour
 
         Vector3 directionZoom = transform.position - _camera.transform.position;
 
-        _camera.transform.position += directionZoom.normalized * Input.mouseScrollDelta.y * 10;
+        _camera.transform.position += directionZoom.normalized * Input.mouseScrollDelta.y * Utilities.camera_scroll;
     }
 
     public void switchMode(){
@@ -116,8 +154,8 @@ public class CameraLookAt : MonoBehaviour
         this.rotation_direction = -this.rotation_direction;
     }
 
-    public void setMaking(bool value)
-    {
-        making = value;
+    public void updatePrefabList(){
+        file_list_p.Clear();
+        file_list_p = Utilities.getFilesAt(Utilities.getPath() + Utilities.INPUT_FOLDER_NAME + "/", "prefab*.txt");
     }
 }
