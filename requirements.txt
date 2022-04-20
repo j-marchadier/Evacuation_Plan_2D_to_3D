@@ -1,0 +1,10 @@
+lxml
+opencv-python
+numpy
+elementpath
+pyqtwebengine<5.13
+pyqt5<5.13
+tk
+subprocess.run
+easyocr
+scipy
