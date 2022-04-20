@@ -103,6 +103,7 @@ public static class Utilities
     public static float camera_speed_x = 5;
     public static float camera_speed_y = 5;
     public static float camera_scroll = 10;
+    public static float CAMERA_ROTATION_SPEED = 0.05f;
 
 
     /*     KEY CODES     */
@@ -327,9 +328,6 @@ public static class Utilities
             Directory.CreateDirectory(filePath+ dirname);
         }
     }
-
-    /*      CAMERA      */
-    public static float CAMERA_ROTATION_SPEED = 0.05f;
 
 
 }
