@@ -6,13 +6,6 @@ using System.IO;
 
 public class CameraLookAt : MonoBehaviour
 {
-    [SerializeField]
-    float speedX = 5;
-    // x speed of camera
-
-    float speedY = 5;
-    // y speed of camera
-
     Readfile rf;
     // a file reader
 
@@ -141,8 +134,8 @@ public class CameraLookAt : MonoBehaviour
         float inputY = Input.GetAxisRaw("Mouse Y");
         // get mouse movements on Y axis
 
-        transform.Rotate(-inputY * Vector3.right * speedY, Space.Self);
-        transform.Rotate(inputX * Vector3.up * speedX, Space.World);
+        transform.Rotate(-inputY * Vector3.right * Utilities.camera_speed_y, Space.Self);
+        transform.Rotate(inputX * Vector3.up * Utilities.camera_speed_x, Space.World);
         // move the camera around the current object
 
         _camera.transform.LookAt(transform.position);
@@ -150,7 +143,7 @@ public class CameraLookAt : MonoBehaviour
 
         Vector3 directionZoom = transform.position - _camera.transform.position;
 
-        _camera.transform.position += directionZoom.normalized * Input.mouseScrollDelta.y * 10;
+        _camera.transform.position += directionZoom.normalized * Input.mouseScrollDelta.y * Utilities.camera_scroll;
     }
 
     public void switchMode(){

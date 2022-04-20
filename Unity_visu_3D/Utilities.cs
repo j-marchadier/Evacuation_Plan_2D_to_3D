@@ -100,6 +100,9 @@ public static class Utilities
     /*     CAMERA     */
     public static int farClipPlane = 10000; // camera far view limit
     public static Vector3 camera_position = new Vector3(-528, 449, -369); // camera position or best view
+    public static float camera_speed_x = 5;
+    public static float camera_speed_y = 5;
+    public static float camera_scroll = 10;
 
 
     /*     KEY CODES     */
@@ -126,7 +129,7 @@ public static class Utilities
     public static float wallSize = 20;
     public static float previousWallSize = 20;
     public static float WallSizeMin = 1;
-    public static float WallSizeMax = 100;
+    public static float WallSizeMax = 250;
 
     public static float wallWidth = 6.35f;
     public static float previousWallWidth = 6.35f;
@@ -138,7 +141,7 @@ public static class Utilities
     public static float FloorSizeMin = 0;
     public static float FloorSizeMax = 60;
 
-    public static float GROW_SPEED = 0.1f; // speed to inrease/decrease all parameters
+    public static float GROW_SPEED = 0.3f; // speed to inrease/decrease all parameters
 
     public static GameObject remakeObject(string tag)
         // remake an object if it already exists
