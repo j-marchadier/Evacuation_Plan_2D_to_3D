@@ -4,6 +4,7 @@ import CreateXML
 import Interface
 import glob
 import easyocr
+import scipy
 
 
 
@@ -89,8 +90,6 @@ class detectPlanLegend:
 
         return
 
-
-
     def findLogos(self, filepath=None, id = 1.5):
 
         Interface.delLogos()
@@ -130,9 +129,7 @@ class detectPlanLegend:
 
         return
 
-
-
-    def dominant_color(img):
+    def dominant_color(self, img):
   
         NUM_CLUSTERS = 5
 
@@ -149,8 +146,6 @@ class detectPlanLegend:
         peak = codes[index_max]
           
         return peak
-
-
 
     def only_picto(self, img_path=None):
 
@@ -180,8 +175,6 @@ class detectPlanLegend:
             img = cv2.rectangle(img,top_left,bottom_right,main_color,-1)
 
         return img
-
-
 
     def findLogos_bis(self, img_path=None, inf=.7, sup=.9):
 
@@ -234,8 +227,6 @@ class detectPlanLegend:
             cv2.imwrite('data/logos/logo_'+str(i)+'.jpg', img[l[1]:l[3],l[0]:l[2]])
 
         return
-
-        
 
     # Clean logos variations
     def clear_coord_logos(self,coord):

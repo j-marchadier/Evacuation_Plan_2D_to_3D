@@ -5,3 +5,4 @@ elementpath
 pyqt5
 tk
 subprocess.run
+scipy
