@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -20,81 +21,117 @@ public class CameraLookAt : MonoBehaviour
     // a camera
 
     public bool cameraInRotationMode = false;
-    public bool making = true;
-    bool oldMakingValue = true;
     public int rotation_direction = 1;
-    List<string> file_list;
-    int list_length;
-    int file_num;
-    char file_tag = '1';
+
+    List<string> file_list_w;
+    List<string> file_list_p;
+    int wfile_num;
+    int pfile_num;
+
+    public bool making = true;
+
+
 
     private void Start()
     {
-        file_list = Utilities.getFilesAt(Utilities.getPath() + Utilities.INPUT_FOLDER_NAME + "/", "*_mur.txt");
-        list_length = file_list.Count;
-        file_num = 0;
-        updateView();
+        initAll();
         // move teh current object to the center of the object in the file
         Utilities.childToParent(_camera,this.gameObject);
         // move the camera to the object
         _camera.GetComponent<Camera>().farClipPlane = Utilities.farClipPlane;
         // set camera render distance
+
+        setCamView();
     }
 
-    public void updateView()
-    {
-        /*if(making != oldMakingValue)
-        {
-            oldMakingValue = making;
-            if (making)
-                file_list = Utilities.getFilesAt(Utilities.getPath() + Utilities.INPUT_FOLDER_NAME + "/", this.file_tag + "_mur.txt");
-            list_length = file_list.Count;
-        }*/
+    private void initAll(){
+        file_list_w = Utilities.getFilesAt(Utilities.getPath() + Utilities.INPUT_FOLDER_NAME + "/", "*_mur.txt");
+        file_list_p = Utilities.getFilesAt(Utilities.getPath() + Utilities.INPUT_FOLDER_NAME + "/", "prefab*.txt");
+        pfile_num = 0;
+        wfile_num = 0;
+    }
 
-        string file = file_list[file_num];
-        if (!making)
-        {
-            file_list = Utilities.getFilesAt(Utilities.getPath() + Utilities.INPUT_FOLDER_NAME + "/", "prefab*.txt");
-            string test_file = file_list[0];
-            string[] f = file.Split('/');
-            string file_name = f[f.Length - 1];
-            string[] test = file_name.Split('_', '.');
+    public string prefabFileToWallFile(string file){
+        string outfile = file;
+        string filename = outfile.Split('/')[outfile.Split('/').Length - 1]; // name + extension
+        int tfTag = int.Parse(filename.Split('_', '.')[1]); // tag in a prefab file 'prefab_1.txt'
 
-            file_num = int.Parse(test[1]) - 1;
+        foreach (string f in file_list_w)
+        {
+            string wfilename = f.Split('/')[f.Split('/').Length - 1]; // name + extension
+            int wfTag = int.Parse(wfilename.Split('_')[0]); // tag in a walls file '1_mur.txt'
+            outfile =  f;
+            if (wfTag == tfTag)
+                break;
+
         }
-        file_list = Utilities.getFilesAt(Utilities.getPath() + Utilities.INPUT_FOLDER_NAME + "/", this.file_tag + "_mur.txt");
-        list_length = file_list.Count;
-        file = file_list[file_num];
-        rf = new Readfile(file, "walls");
-        rf.read();
-        // read a "wall" file to get all of the values
+
+        return outfile;
+    }
+
+    public void setCamView()
+    {
+        string targetFile = file_list_w[wfile_num] ;
+        if(!making){
+            string pfile = file_list_p[pfile_num];
+            targetFile = prefabFileToWallFile(pfile);
+        }
+
+        rf = new Readfile(targetFile, "walls");
+        rf.read(); // read a "wall" file to get all of the values
         transform.position = new Vector3(-rf.meanX, 0, rf.meanZ);
     }
+
+    public void cycleInDir(int i){
+
+        if(making){ // if in make mode
+            wfile_num += i;
+            if (wfile_num >= file_list_w.Count)
+            {
+                wfile_num = 0;
+            }
+            if(wfile_num < 0){
+                wfile_num = file_list_w.Count - 1;
+            }
+        }
+        else{
+            pfile_num += i;
+            if (pfile_num >= file_list_p.Count)
+            {
+                pfile_num = 0;
+            }
+            if (pfile_num < 0)
+            {
+                pfile_num = file_list_p.Count - 1;
+            }
+        }
+
+        setCamView();
+
+    }
+
     void Update()
     {
-        
-        if (Input.GetKeyDown(Utilities.CYCLE_RIGHT)) 
+        if (Input.GetKeyDown(Utilities.CYCLE_RIGHT))
         {
-            file_num += 1;
-            if(file_num >= list_length)
-            {
-                file_num = 0;
-            }
-            updateView();
+            cycleInDir(1);
         }
-        else if (Input.GetKeyDown(Utilities.CYCLE_LEFT)) 
+        else if (Input.GetKeyDown(Utilities.CYCLE_LEFT))
         {
-            file_num -= 1;
-            if (file_num < 0)
-            {
-                file_num = list_length - 1;
-            }
-            updateView();
+            cycleInDir(-1);
         }
         else if (Input.GetKeyDown(Utilities.VISU_PREFAB_MODE))
         {
-            updateView();
+            making = false;
+            pfile_num = 0;
+            setCamView();
         }
+        else if(Input.GetKeyDown(Utilities.MAKE_PREFAB_MODE))
+        {
+            making = true;
+            setCamView();
+        }
+
         float inputX = 0;
         if(!this.cameraInRotationMode)
             inputX = Input.GetAxisRaw("Mouse X");
@@ -124,8 +161,8 @@ public class CameraLookAt : MonoBehaviour
         this.rotation_direction = -this.rotation_direction;
     }
 
-    public void setMaking(bool value)
-    {
-        making = value;
+    public void updatePrefabList(){
+        file_list_p.Clear();
+        file_list_p = Utilities.getFilesAt(Utilities.getPath() + Utilities.INPUT_FOLDER_NAME + "/", "prefab*.txt");
     }
 }

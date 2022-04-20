@@ -185,6 +185,7 @@ public class Prefab_make
             {
                 Utilities.savePrefab(container, int.Parse(fileTag+""));
                 //registerPrefab(); // save a prefab
+                GameObject.FindGameObjectWithTag(Utilities.TAG_ROTATION).GetComponent<CameraLookAt>().updatePrefabList();
             }
 
             updateMesh(); // update the mesh
@@ -220,7 +221,7 @@ public class Prefab_make
         foreach (GameObject floor in floors)
         // for all walls
         {
-            floor.transform.localScale = new Vector3(floor.transform.localScale.x + changeWidth, floor.transform.localScale.y + changeSize, floor.transform.localScale.z);
+            floor.transform.localScale = new Vector3(floor.transform.localScale.x, floor.transform.localScale.y, floor.transform.localScale.z + changeFloorSize);
             // update the size and width
         }
 
@@ -228,7 +229,7 @@ public class Prefab_make
         foreach (GameObject roof in roofs)
         // for all walls
         {
-            roof.transform.localScale = new Vector3(roof.transform.localScale.x + changeWidth, roof.transform.localScale.y + changeSize, roof.transform.localScale.z);
+            roof.transform.localScale = new Vector3(roof.transform.localScale.x, roof.transform.localScale.y, roof.transform.localScale.z + changeFloorSize);
             // update the size and width
             if (hide_roof) roof.GetComponent<MeshRenderer>().enabled = false; // disable the floor renderer
             else roof.GetComponent<MeshRenderer>().enabled = true; // enable the floor renderer

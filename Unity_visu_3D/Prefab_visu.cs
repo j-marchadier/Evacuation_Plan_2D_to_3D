@@ -95,6 +95,7 @@ public class Prefab_visu
     // charge all existing prefabs
     {
         prefabList = Utilities.getFilesAt(Utilities.getPath() + Utilities.OUTPUT_FOLDER_NAME,"prefab*.txt");
+        prefabNum = 0;
 
         //prefabList = Resources.LoadAll<GameObject>("Prefab"); // search for and load all prefab files
 

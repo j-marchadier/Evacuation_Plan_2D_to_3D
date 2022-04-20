@@ -73,7 +73,6 @@ public class Base_script : MonoBehaviour
         {
             if (old_making_val != making) // if we just switched to making mode
             {
-                rotation.GetComponent<CameraLookAt>().setMaking(true);
                 pmake.setSwitch(true); // tell the prefab maker that we just switched
                 pvisu.clear(); // clear the visualizer
             }
@@ -85,7 +84,6 @@ public class Base_script : MonoBehaviour
         {
             if (old_visualizing_val != visualizing) // if we just switched to making mode
             {
-                rotation.GetComponent<CameraLookAt>().setMaking(false);
                 pmake.clear(); // clear the maker
                 pvisu.charge_prefabs();// tell the prefab visualizer to update the list of existing prefabs
             }
