@@ -7,7 +7,6 @@ import scipy
 import scipy.misc
 import scipy.cluster
 import easyocr
-import scipy
 
 
 
