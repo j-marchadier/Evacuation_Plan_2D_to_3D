@@ -1,7 +1,7 @@
 <annotation>
 	<folder>plans</folder>
 	<filename>planInternet.jpg</filename>
-	<path>/Users/julienmarchadier/Desktop/Boulot/E4/Evacuation_Plan_2D_to_3D/data/plans/planInternet.jpg</path>
+	<path>/home/loulely/Documents/ESIEE/E4/ProjetE4/Evacuation_Plan_2D_to_3D/data/plans/planInternet.jpg</path>
 	<source>
 		<database>Unknown</database>
 	</source>
@@ -17,10 +17,10 @@
 		<truncated>0</truncated>
 		<difficult>0</difficult>
 		<bndbox>
-			<xmin>49</xmin>
-			<ymin>1100</ymin>
-			<xmax>581</xmax>
-			<ymax>1559</ymax>
+			<xmin>63</xmin>
+			<ymin>1162</ymin>
+			<xmax>563</xmax>
+			<ymax>1542</ymax>
 		</bndbox>
 	</object>
 	<object>
@@ -29,10 +29,10 @@
 		<truncated>0</truncated>
 		<difficult>0</difficult>
 		<bndbox>
-			<xmin>1146</xmin>
+			<xmin>1128</xmin>
 			<ymin>513</ymin>
-			<xmax>2194</xmax>
-			<ymax>1522</ymax>
+			<xmax>2198</xmax>
+			<ymax>1545</ymax>
 		</bndbox>
 	</object>
 </annotation>

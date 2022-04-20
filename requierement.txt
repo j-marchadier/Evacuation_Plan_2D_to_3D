@@ -1,7 +1,0 @@
-lxml
-opencv-python
-numpy
-elementpath
-pyqt5
-tk
-subprocess.run
