@@ -7,6 +7,9 @@ import scipy
 import scipy.misc
 import scipy.cluster
 import easyocr
+import io
+import json
+import requests
 
 
 
@@ -92,44 +95,6 @@ class detectPlanLegend:
 
         return
 
-    def findLogos(self, filepath=None, id = 1.5):
-
-        Interface.delLogos()
-        if filepath is None : filepath = self.path.replace(self.path.split("/")[-1],"legend.jpg")
-
-        legend = cv2.imread(filepath)
-        legend_processed = self.imageProcess(legend,threshLvl=70)
-
-        contours = self.lookForContours(legend_processed)
-        #cv2.imwrite('roi.jpg', legend)
-
-        coord_legend = []
-
-        for contour in contours:
-            [x, y, w, h] = cv2.boundingRect(contour)
-            if w+h < (legend.shape[0] + legend.shape[1])/id:
-                #cv2.rectangle(legend, (x, y), (x + w, y + h), (255, 0, 255), 3)
-                coord_legend.append([x, y, w, h])
-
-        if not coord_legend:
-            print("NO LOGOS FIND, RETRY...")
-            self.findLogos(filepath,id=id+0.5)
-
-            #return
-
-        ### Create a XLM file for all possible legend
-        CreateXML.createXML(filepath, legend, coord_legend)
-
-        # Start Inteface to change an perform Plan and legend
-        Interface.OpenLabelImg(filepath)
-        coord_logos = CreateXML.readLogosXML(filepath)
-
-        Interface.createLogos()
-
-        for l,i in zip(coord_logos,range(len(coord_logos))):
-            cv2.imwrite('data/logos/logo_'+str(i)+'.jpg', legend[l[1]:l[3],l[0]:l[2]])
-
-        return
 
     def dominant_color(self, img):
   
@@ -148,6 +113,7 @@ class detectPlanLegend:
         peak = codes[index_max]
           
         return peak
+
 
     def only_picto(self, img_path=None):
 
@@ -178,7 +144,46 @@ class detectPlanLegend:
 
         return img
 
-    def findLogos_bis(self, img_path=None, inf=.7, sup=.9):
+
+    def findLogos_v1(self, filepath=None, id = 1.5):
+
+        Interface.delLogos()
+        if filepath is None : filepath = self.path.replace(self.path.split("/")[-1],"legend.jpg")
+
+        legend = cv2.imread(filepath)
+        legend_processed = self.imageProcess(legend,threshLvl=70)
+
+        contours = self.lookForContours(legend_processed)
+        #cv2.imwrite('roi.jpg', legend)
+
+        coord_legend = []
+
+        for contour in contours:
+            [x, y, w, h] = cv2.boundingRect(contour)
+            if w+h < (legend.shape[0] + legend.shape[1])/id:
+                #cv2.rectangle(legend, (x, y), (x + w, y + h), (255, 0, 255), 3)
+                coord_legend.append([x, y, w, h])
+
+        if not coord_legend:
+            print("NO LOGOS FIND, RETRY...")
+            self.findLogos(filepath,id=id+0.5)
+
+        ### Create a XLM file for all possible legend
+        CreateXML.createXML(filepath, legend, coord_legend)
+
+        # Start Inteface to change an perform Plan and legend
+        Interface.OpenLabelImg(filepath)
+        coord_logos = CreateXML.readLogosXML(filepath)
+
+        Interface.createLogos()
+
+        for l,i in zip(coord_logos,range(len(coord_logos))):
+            cv2.imwrite('data/logos/logo_'+str(i)+'.jpg', legend[l[1]:l[3],l[0]:l[2]])
+
+        return
+
+
+    def findLogos_v2(self, img_path=None, inf=.8, sup=.9):
 
         Interface.delLogos()
         if img_path is None : img_path = self.path.replace(self.path.split("/")[-1],"legend.jpg")
@@ -229,6 +234,84 @@ class detectPlanLegend:
             cv2.imwrite('data/logos/logo_'+str(i)+'.jpg', img[l[1]:l[3],l[0]:l[2]])
 
         return
+
+
+    def list_words(self, sentence):
+     
+        esp = sentence.count(" ")
+        deb = 0
+        fin = sentence.index(" ")
+        myList = []
+
+        for i in range(0, esp + 1) :
+            myList.append(sentence[deb:fin])
+            sentence = sentence[fin+1:]
+            if sentence.count(" ") != 0 :
+                fin = sentence.index(" ")
+            else :
+                fin = len(sentence)
+
+        return myList
+
+
+
+    def findLogos_v3(self, img_path=None, inf=.83, sup=.99):
+
+        Interface.delLogos()
+        if img_path is None : img_path = self.path.replace(self.path.split("/")[-1],"legend.jpg")
+
+        # img = self.only_picto(img_path)
+        img = cv2.imread(img_path)
+
+        url_api = "https://api.ocr.space/parse/image"
+        _,compressedimage = cv2.imencode(".jpeg", img, [1, 90])
+        file_bytes = io.BytesIO(compressedimage)
+
+        result = json.loads(requests.post(url_api, files = {img_path: file_bytes}, data = {"apikey": "K82212668088957","language": "fre"}).content.decode())
+
+        parsed_results = result.get("ParsedResults")[0]
+        text_detected = parsed_results.get("ParsedText").replace('\r\n', ' ').replace("\'", " ")
+        words = self.list_words(text_detected)
+
+        if len(words)>10 :
+            inf = .95
+            sup = 1
+
+        ###### On récupère les coordonnées des pictogrammes ######
+
+        edges = cv2.Canny(img,100,200)
+        coord_picto = []
+
+        contours,_ = cv2.findContours(edges, 1, 2)
+        contours_sizes= [cv2.contourArea(cnt) for cnt in contours]
+
+        # Création de quantiles pour réduire le nombre de tâches détectées qui ne correspondent pas à des logos
+        Qinf = int(np.quantile(contours_sizes, inf))
+        Qsup = int(np.quantile(contours_sizes, sup))
+
+        for cnt in contours:
+            [x, y, w, h] = cv2.boundingRect(cnt)
+            size = cv2.contourArea(cnt)
+
+            if (Qinf < size < Qsup+1):
+                coord_picto.append([x, y, w, h])
+
+        ### Create a XLM file for all possible legends
+
+        CreateXML.createXML(img_path, img, coord_picto)
+
+        # Start Inteface to change an perform Plan and legend
+        Interface.OpenLabelImg(img_path)
+        coord_logos = CreateXML.readLogosXML(img_path)
+
+        Interface.createLogos()
+
+        for l,i in zip(coord_logos,range(len(coord_logos))):
+            cv2.imwrite('data/logos/logo_'+str(i)+'.jpg', img[l[1]:l[3],l[0]:l[2]])
+
+        return
+
+
 
     # Clean logos variations
     def clear_coord_logos(self,coord):
